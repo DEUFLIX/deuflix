@@ -17,10 +17,10 @@ import java.io.IOException;
 @Service
 public class ImageService {
 
-    @Value("${bucketName}")
+    @Value("${aws.s3.bucketName}")
     private String bucketName;
 
-    @Value("${endPoint}")
+    @Value("${aws.s3.endPoint}")
     private String endPoint;
 
     private final AmazonS3 s3Client;
@@ -34,7 +34,7 @@ public class ImageService {
         String fileName=System.currentTimeMillis()+"_"+file.getOriginalFilename();
         s3Client.putObject(new PutObjectRequest(bucketName,fileName,convFile).withCannedAcl(CannedAccessControlList.PublicRead));
         convFile.delete();
-        return endPoint+fileName;
+        return endPoint + bucketName + "/" + fileName;
     }
 
     public byte[] downloadFile(String fileName ){
@@ -52,13 +52,12 @@ public class ImageService {
 
     public String deleteFile(String fileName){
         if(!fileName.equals("")){
-            String newFileName= fileName.substring(endPoint.length());
+            String newFileName = fileName.substring((endPoint + bucketName + "/").length());
             s3Client.deleteObject(bucketName,newFileName);
         }
 
-        return  "deleted";
+        return "deleted";
     }
-
 
     private File convertMultipartFileToFile(MultipartFile file){
         File convertedFile = new File(file.getOriginalFilename());

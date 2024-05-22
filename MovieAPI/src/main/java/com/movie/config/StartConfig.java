@@ -50,7 +50,7 @@ public class StartConfig implements CommandLineRunner {
         UserCreateRequest user = new UserCreateRequest(
                 "admin",
                 "admin@gmail.com",
-                "admin6287",
+                "admin8128",
                 true
         );
         if(userRepository.findByEmail(user.getEmail()).isEmpty())

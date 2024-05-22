@@ -1,8 +1,11 @@
 /** @type {import('next').NextConfig} */
-module.exports = {
+const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [`assets.nflxext.com`],
+    domains: ['assets.nflxext.com'],
+  },
+  env: {
+    NEXT_PUBLIC_API: process.env.NEXT_PUBLIC_API,
   },
   async rewrites() {
     return [
@@ -21,3 +24,5 @@ module.exports = {
     ];
   },
 };
+
+module.exports = nextConfig;
