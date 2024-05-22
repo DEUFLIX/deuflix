@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # spring-boot-next.js-netflix-clone
 A Netflix-Clone project by SpringBoot &amp; Next.js
 
@@ -32,3 +33,6 @@ A Netflix-Clone project by SpringBoot &amp; Next.js
 ![](images/11.png)
 ![](images/2.jpg)
 ![](images/4.png)
+=======
+# deuflix
+>>>>>>> fb5bbf8e616dc695f2bc691fa8a631b04768560f
