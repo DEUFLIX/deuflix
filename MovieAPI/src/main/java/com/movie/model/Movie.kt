@@ -1,6 +1,5 @@
 package com.movie.model
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.hibernate.Hibernate
 import org.hibernate.annotations.OnDelete
@@ -8,58 +7,117 @@ import org.hibernate.annotations.OnDeleteAction
 import javax.persistence.*
 
 @Entity
-@Table(name="movie")
-data class Movie @JvmOverloads constructor(
+@Table(name = "movie")
+class Movie {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        val id: Long?=null,
+        var id: Long? = null
 
-        val title:String,
+        var title: String? = null
+
         @Column(length = 512)
-        val description:String,
+        var description: String? = null
 
-        val movieImage:String?,
-        val trailer:String,
-        val movieUrl:String,
+        var movieImage: String? = null
+        var trailer: String? = null
+        var movieUrl: String? = null
 
         @ManyToOne
         @JoinColumn(name = "movieYear_id")
-        val year: MovieYear? ,
+        var year: MovieYear? = null
 
-        @ManyToMany(mappedBy = "movies", fetch = FetchType.LAZY , cascade = [CascadeType.MERGE])
+        @ManyToMany(mappedBy = "movies", fetch = FetchType.LAZY, cascade = [CascadeType.MERGE])
         @OnDelete(action = OnDeleteAction.CASCADE)
-        val genres: Set<Genre>? = HashSet(),
+        var genres: Set<Genre> = HashSet()
 
-        @ManyToMany @JoinTable(name = "movie_user",
-                joinColumns = [JoinColumn(name = "movie_id")],
-                inverseJoinColumns = [JoinColumn(name = "user_id")])
-        @OnDelete(action = OnDeleteAction.CASCADE)
-        @JsonIgnore
-        val users: Set<User>? = HashSet(),
-
-
-        @ManyToMany @JoinTable(name = "movie_lists",
-                joinColumns = [JoinColumn(name = "movie_id")],
-                inverseJoinColumns = [JoinColumn(name = "list_id")])
+        @ManyToMany
+        @JoinTable(name = "movie_user", joinColumns = [JoinColumn(name = "movie_id")], inverseJoinColumns = [JoinColumn(name = "user_id")])
         @OnDelete(action = OnDeleteAction.CASCADE)
         @JsonIgnore
-        val lists: Set<MovieList>? = HashSet(),
+        var users: Set<User> = HashSet()
 
-        val isMovie: Boolean?,
+        @ManyToMany
+        @JoinTable(name = "movie_lists", joinColumns = [JoinColumn(name = "movie_id")], inverseJoinColumns = [JoinColumn(name = "list_id")])
+        @OnDelete(action = OnDeleteAction.CASCADE)
+        @JsonIgnore
+        var lists: Set<MovieList> = HashSet()
 
-        ) {
-        override fun equals(other: Any?): Boolean {
-                if (this === other) return true
-                if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
-                other as Movie
+        var isMovie: Boolean = true // 기본 값을 설정하고 nullable하지 않게 변경
 
-                return id != null && id == other.id
+        fun getIsMovie(): Boolean {
+                return isMovie
         }
 
-        override fun hashCode(): Int = javaClass.hashCode()
+        constructor()
 
-        @Override
+        constructor(
+                id: Long?,
+                title: String?,
+                description: String?,
+                movieImage: String?,
+                trailer: String?,
+                movieUrl: String?,
+                year: MovieYear?,
+                isMovie: Boolean,
+                genres: Set<Genre>,
+                users: Set<User>,
+                lists: Set<MovieList>
+        ) {
+                this.id = id
+                this.title = title
+                this.description = description
+                this.movieImage = movieImage
+                this.trailer = trailer
+                this.movieUrl = movieUrl
+                this.year = year
+                this.isMovie = isMovie
+                this.genres = genres
+                this.users = users
+                this.lists = lists
+        }
+
+        constructor(
+                title: String?,
+                description: String?,
+                movieImage: String?,
+                trailer: String?,
+                movieUrl: String?,
+                year: MovieYear?,
+                isMovie: Boolean
+        ) {
+                this.title = title
+                this.description = description
+                this.movieImage = movieImage
+                this.trailer = trailer
+                this.movieUrl = movieUrl
+                this.year = year
+                this.isMovie = isMovie
+        }
+
+        override fun equals(o: Any?): Boolean {
+                if (this === o) return true
+                if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false
+                val movie = o as Movie
+                return id != null && id == movie.id
+        }
+
+        override fun hashCode(): Int {
+                return javaClass.hashCode()
+        }
+
         override fun toString(): String {
-                return this::class.simpleName + "(id = $id )"
+                return "Movie{" +
+                        "id=" + id +
+                        ", title='" + title + '\'' +
+                        ", description='" + description + '\'' +
+                        ", movieImage='" + movieImage + '\'' +
+                        ", trailer='" + trailer + '\'' +
+                        ", movieUrl='" + movieUrl + '\'' +
+                        ", year=" + year +
+                        ", genres=" + genres +
+                        ", users=" + users +
+                        ", lists=" + lists +
+                        ", isMovie=" + isMovie +
+                        '}'
         }
 }
