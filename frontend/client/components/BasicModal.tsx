@@ -1,12 +1,12 @@
 import * as React from "react";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
-import { MdInfoOutline } from "react-icons/md";
-import { Genre, Movie, Series } from "../typing";
+import { MdInfoOutline, MdClose } from "react-icons/md";
+import { Genre, Movie } from "../typing";
 import ReactPlayer from "react-player";
 
 interface IProps {
-    movie: Movie | Series;
+    movie: Movie;
 }
 
 export default function BasicModal({ movie }: IProps) {
@@ -24,30 +24,38 @@ export default function BasicModal({ movie }: IProps) {
                 onClose={handleClose}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
+                className="z-50"
             >
-                <div>
-                    <div className="w-full md:w-1/2 lg:w-1/2 h-auto absolute top-[10%] md:left-[25%] bg-black">
+                <div className="flex items-center justify-center min-h-screen px-4 text-center z-50">
+                    <div className="bg-black rounded-lg overflow-hidden shadow-xl transform transition-all w-full max-w-5xl p-6 relative">
+                        <button
+                            className="absolute top-4 right-4 text-white text-3xl z-50"
+                            onClick={handleClose}
+                        >
+                            <MdClose />
+                        </button>
                         <ReactPlayer
-                            url={'trailer' in movie ? movie.trailer : movie.trailerUrl} // 인트로 영상 URL로 변경
+                            url={movie.trailer} // 인트로 영상 URL로 변경
                             width="100%"
-                            height="400px"
-                            playing // 자동 재생
+                            height="50%"
+                            playing={true} // 자동 재생 추가
+                            muted={true} // 음소거 추가
                             controls
                         />
-                        <div className="flex flex-col space-y-4 rounded-b-md bg-[#181818] px-10 py-8">
+                        <div className="flex flex-col space-y-4 bg-[#181818] px-4 py-8 text-white">
                             <h1 className="text-2xl font-bold">{movie.title}</h1>
                             <p>{movie.description}</p>
                             <div>
-                                <span className="text-gray-400">Genre: </span>
+                                <span className="text-[gray]">Genre: </span>
                                 {movie.genres && movie.genres.map((g: Genre) => (
                                     <span key={g.id}>{g.genre} </span>
                                 ))}
                             </div>
-                            {movie.year && movie.year.year && (
-                                <p>
-                                    <span className="text-gray-400">Year: </span>
+                            {movie.year && movie.year.year != null && (
+                                <h1>
+                                    <span className="text-[gray]">Year: </span>
                                     {movie.year.year}
-                                </p>
+                                </h1>
                             )}
                         </div>
                     </div>

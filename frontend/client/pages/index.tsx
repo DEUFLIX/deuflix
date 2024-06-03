@@ -10,12 +10,12 @@ import Lists from "../components/Lists";
 import { UserContext } from "../context/UserContext";
 
 interface IProps {
-  posterMovie: Movie;
-  genreList: [Genre];
+  posterData: Movie;
+  genreList: Genre[];
 }
 
-const Home = ({ posterMovie, genreList }: IProps) => {
-  const [liste, setListe] = useState<[List]>();
+const Home = ({ posterData, genreList }: IProps) => {
+  const [liste, setListe] = useState<List[]>([]);
   const currentGenre = useContext(GenreContext);
   const router = useRouter();
   const currentType = router.asPath.substring(1);
@@ -34,13 +34,13 @@ const Home = ({ posterMovie, genreList }: IProps) => {
     };
     getListe();
   }, [currentType, currentGenre?.currentGenre]);
-  console.log("state,", state);
 
   const handleLoginPage = () => {
     if (typeof window !== "undefined") {
       router.replace("/login");
     }
   };
+
   if (state?.state == null) {
     return (
         <>
@@ -49,18 +49,17 @@ const Home = ({ posterMovie, genreList }: IProps) => {
         </>
     );
   }
+
   return (
-      <div className="relative h-screen bg-gradient-to-b from-gray-900/10 to-[#010511] lg:h-[95vh]  ">
+      <div className="relative h-screen bg-gradient-to-b from-gray-900/10 to-[#010511] lg:h-[95vh]">
         <Head>
           <title>NetFlix{currentType === "" ? "" : "-" + currentType}</title>
         </Head>
         <Navbar />
-
-        <main className="relative pb-10 pl-4 lg:pl-10  ">
-          <Poster posterMovie={posterMovie} genreList={genreList} />
-
+        <main className="relative pb-10 pl-4 lg:pl-10">
+          <Poster posterData={posterData} genreList={genreList} />
           <section className="md:space-y-10 mt-12">
-            {liste && liste.map(l => <Lists key={l.id} list={l} />)}
+            {liste && liste.map((l) => <Lists key={l.id} list={l} />)}
           </section>
         </main>
       </div>
@@ -70,17 +69,37 @@ const Home = ({ posterMovie, genreList }: IProps) => {
 export default Home;
 
 export const getServerSideProps = async () => {
-  const [posterMovie, genreList] = await Promise.all([
-    fetch(`${process.env.NEXT_PUBLIC_API}/movies/random?type=movies`).then(
-        res => res.json()
-    ),
-    fetch(`${process.env.NEXT_PUBLIC_API}/genre`).then(res => res.json()),
-  ]);
+  try {
+    const [randomMovieResponse, genreListResponse] = await Promise.all([
+      fetch(`${process.env.NEXT_PUBLIC_API}/movies/random?type=movies`),
+      fetch(`${process.env.NEXT_PUBLIC_API}/genre`)
+    ]);
 
-  return {
-    props: {
-      posterMovie,
-      genreList,
-    },
-  };
+    const randomMovie = await randomMovieResponse.json();
+    const genreList = await genreListResponse.json();
+
+    const movieId = randomMovie.id;
+
+    const suggestionsResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API}/getSuggestions?movieId=${movieId}`
+    );
+
+    const suggestionsData = await suggestionsResponse.json();
+
+    return {
+      props: {
+        posterData: { ...randomMovie, ...suggestionsData },
+        genreList,
+      },
+    };
+  } catch (error: any) {
+    console.error("Error fetching data:", error);
+    return {
+      props: {
+        posterData: null,
+        genreList: [],
+        error: error.message,
+      },
+    };
+  }
 };

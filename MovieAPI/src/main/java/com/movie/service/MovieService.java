@@ -10,6 +10,8 @@ import com.movie.repository.MovieRepository;
 import com.movie.repository.MovieYearRepository;
 import com.movie.request.MovieRequest;
 import com.movie.request.MovieUpdateRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class MovieService {
+
+    private static final Logger logger = LoggerFactory.getLogger(MovieService.class);
 
     private final ImageService imageService;
     private final MovieRepository movieRepository;
@@ -77,10 +81,21 @@ public class MovieService {
     }
 
     public MovieDto getRandomOneMovie(String type) {
+        logger.info("Fetching random movie of type: {}", type);
         int control = 0;
         if (type.equals("movies"))
             control = 1;
-        return MovieDto.convert(this.movieRepository.findRandomOneMovie(control));
+        try {
+            Movie movie = this.movieRepository.findRandomOneMovie(control);
+            if (movie == null) {
+                throw new ResourceNotFoundException("No random movie found for type: " + type);
+            }
+            logger.info("Fetched random movie: {}", movie);
+            return MovieDto.convert(movie);
+        } catch (Exception e) {
+            logger.error("Error fetching random movie", e);
+            throw new RuntimeException("Error fetching random movie", e);
+        }
     }
 
     // Create Movie
