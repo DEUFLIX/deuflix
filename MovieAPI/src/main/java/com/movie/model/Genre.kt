@@ -20,7 +20,7 @@ import javax.persistence.Table
 data class Genre @JvmOverloads constructor(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        val id: Int?,
+        val id: Int? = null,
 
         @Column(unique = true)
         val genre: String,
@@ -32,7 +32,16 @@ data class Genre @JvmOverloads constructor(
                 inverseJoinColumns = [JoinColumn(name = "movie_id")])
         @OnDelete(action = OnDeleteAction.CASCADE)
         @JsonIgnore
-        val movies: Set<Movie>?= HashSet()
+        val movies: Set<Movie> = HashSet(),
+
+        @ManyToMany(cascade = [CascadeType.ALL])
+        @JoinTable(
+                name = "series_genre",
+                joinColumns = [JoinColumn(name = "genre_id")],
+                inverseJoinColumns = [JoinColumn(name = "series_id")])
+        @OnDelete(action = OnDeleteAction.CASCADE)
+        @JsonIgnore
+        val series: Set<Series> = HashSet()
 ) {
         override fun equals(other: Any?): Boolean {
                 if (this === other) return true
@@ -49,4 +58,3 @@ data class Genre @JvmOverloads constructor(
                 return this::class.simpleName + "(id = $id , genre = $genre )"
         }
 }
-

@@ -4,13 +4,13 @@ import { useContext, useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Poster from "../components/Poster";
 import axios from "axios";
-import { Genre, List, Movie } from "../typing";
+import { Genre, List, Movie, Series } from "../typing";
 import { GenreContext } from "../context/GenreContext";
 import Lists from "../components/Lists";
 import { UserContext } from "../context/UserContext";
 
 interface IProps {
-  posterData: Movie;
+  posterData: Movie | Series;
   genreList: Genre[];
 }
 
@@ -70,25 +70,28 @@ export default Home;
 
 export const getServerSideProps = async () => {
   try {
-    const [randomMovieResponse, genreListResponse] = await Promise.all([
+    const [randomMovieResponse, randomSeriesResponse, genreListResponse] = await Promise.all([
       fetch(`${process.env.NEXT_PUBLIC_API}/movies/random?type=movies`),
+      fetch(`${process.env.NEXT_PUBLIC_API}/series/random`),
       fetch(`${process.env.NEXT_PUBLIC_API}/genre`)
     ]);
 
     const randomMovie = await randomMovieResponse.json();
+    const randomSeries = await randomSeriesResponse.json();
     const genreList = await genreListResponse.json();
 
-    const movieId = randomMovie.id;
+    const isMovie = Math.random() < 0.5; // 50% 확률로 movie 또는 series 선택
+    const selectedData = isMovie ? randomMovie : randomSeries;
 
     const suggestionsResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API}/getSuggestions?movieId=${movieId}`
+        `${process.env.NEXT_PUBLIC_API}/getSuggestions?${isMovie ? 'movieId' : 'seriesId'}=${selectedData.id}`
     );
 
     const suggestionsData = await suggestionsResponse.json();
 
     return {
       props: {
-        posterData: { ...randomMovie, ...suggestionsData },
+        posterData: { ...selectedData, ...suggestionsData },
         genreList,
       },
     };

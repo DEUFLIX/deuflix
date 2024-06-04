@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Genre, Movie, Series } from "../typing";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -6,7 +6,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import { useRouter } from "next/router";
-import { useContext } from "react";
 import { GenreContext } from "../context/GenreContext";
 import VideoPlayer from "./VideoPlayer";
 import axios from 'axios';
@@ -29,7 +28,8 @@ const Poster = ({ posterData, genreList }: IProps) => {
     if (posterData && 'id' in posterData) {
       const fetchSuggestions = async () => {
         try {
-          const response = await axios.get(`http://localhost:3000/api/getSuggestions?movieId=${posterData.id}`);
+          const idParam = 'movieImage' in posterData ? 'movieId' : 'seriesId';
+          const response = await axios.get(`http://localhost:3000/api/getSuggestions?${idParam}=${posterData.id}`);
           setSuggestions(response.data.suggestions);
           setAgeRestriction(response.data.age_restriction);
           setActors(response.data.actors);
@@ -217,10 +217,10 @@ const Poster = ({ posterData, genreList }: IProps) => {
                         <span className="text-green-400">{matchPercentage}</span>
                     )}
                   </div>
-                  {posterData?.year && posterData.year.year && (
+                  {posterData?.year && (
                       <p>
                         <span className="text-gray-400">Year: </span>
-                        {posterData.year.year}
+                        {posterData.year}
                       </p>
                   )}
                 </div>
