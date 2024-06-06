@@ -25,4 +25,20 @@ const nextConfig = {
   },
 };
 
+module.exports = {
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ['@svgr/webpack'],
+    });
+
+    config.module.rules.push({
+      test: /\.css$/,
+      use: ['style-loader', 'css-loader'],
+    });
+
+    return config;
+  },
+};
+
 module.exports = nextConfig;
