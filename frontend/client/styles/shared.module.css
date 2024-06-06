@@ -1,0 +1,242 @@
+.body {
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.topBar {
+    background-color: #ffffff;
+    padding: 16px;
+    border-bottom: 1px solid #e6e6e6;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 64px;
+}
+
+.headerContent {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    height: 32px;
+    margin-left: 16px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 90px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.section {
+    width: 100%;
+    max-width: 800px;
+}
+
+.slider {
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+.ratingLabels {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    top: -12px;
+}
+
+.ratingBox {
+    display: inline-block;
+    padding: 2px 8px;
+    background-color: #e0f7fa;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.ratingBox:nth-child(2) { /* 7+ 박스 */
+    margin-left: -40px; /* 왼쪽으로 10px 더 이동 */
+}
+
+.ratingBox:nth-child(3) { /* 12+ 박스 */
+    margin-left: 20px; /* 왼쪽으로 10px 더 이동 */
+}
+
+.ratingBox:nth-child(4) { /* 16+ 박스 */
+    margin-left: 10px; /* 왼쪽으로 10px 더 이동 */
+}
+
+.profileMenu {
+    margin-right: 16px;
+}
+
+.profileMenuButton {
+    display: flex;
+    align-items: center;
+}
+
+.profileMenuAbsolute {
+    right: 0;
+    margin-top: 8px;
+    display: none;
+}
+
+.profileMenuImg {
+    height: 32px;
+    width: 32px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.sidebar {
+    background-color: #f8f9fa;
+    width: 250px;
+    padding: 16px;
+}
+
+.backToNetflix {
+    margin-bottom: 16px;
+}
+
+.sidebarUl {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebarLi {
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+}
+
+.sidebarI {
+    margin-right: 10px;
+}
+
+.sidebarA {
+    color: #000;
+    text-decoration: none;
+}
+
+.quickLinkItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+    background-color: #fff;
+}
+
+.quickLinkItem:hover {
+    background-color: #f0f0f0;
+}
+
+.newBadge {
+    background-color: #007bff;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.quickLinkItemI {
+    margin-right: 8px;
+}
+
+.quickLinkItemSpan {
+    flex-grow: 1;
+    text-decoration: none;
+    color: black;
+    cursor: pointer;
+}
+
+.quickLinkItemChevronRight {
+    margin-left: auto;
+}
+
+.quickLinkItemHeight {
+    height: 56px;
+    display: flex;
+    align-items: center;
+}
+
+.quickLinkItemTextBlack {
+    margin-left: 8px;
+}
+
+.quickLinkItemFas {
+    font-size: 18px;
+}
+
+.textBlack {
+    color: black;
+}
+
+.textLg {
+    font-size: 1.125rem;
+}
+
+.text3xl {
+    font-size: 1.875rem;
+    font-weight: bold;
+}
+
+.profileIconsImg {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+}
+
+.accountOverview,
+.quickLinks,
+.profileManagement {
+    margin-bottom: 16px;
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+.accountOverviewH2,
+.quickLinksH2,
+.profileManagementH2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
