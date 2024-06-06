@@ -7,9 +7,18 @@
         <option value="$PROJECT_DIR$/MovieAPI/pom.xml" />
       </list>
     </option>
+<<<<<<< HEAD
     <option name="workspaceImportForciblyTurnedOn" value="true" />
+=======
+>>>>>>> origin/IK4P1N4
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
+<<<<<<< HEAD
+=======
+  <component name="SuppressKotlinCodeStyleNotification">
+    <option name="disableForAll" value="true" />
+  </component>
+>>>>>>> origin/IK4P1N4
 </project>

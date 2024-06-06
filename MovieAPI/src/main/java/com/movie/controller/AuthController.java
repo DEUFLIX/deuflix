@@ -64,7 +64,11 @@ public class AuthController {
             authenticationManager.authenticate(authenticationToken);
         }catch(BadCredentialsException e){
             System.out.println("Invalid detail");
+<<<<<<< HEAD
             throw new AuthException("Invalid username or Password");
+=======
+            throw new AuthException("잘못된 아이디 또는 비밀번호 입니다.");
+>>>>>>> origin/IK4P1N4
         }catch (Exception e){
             throw new AuthException("Invalid username or Password");
         }

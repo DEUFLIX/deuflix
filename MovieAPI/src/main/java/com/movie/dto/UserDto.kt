@@ -10,6 +10,10 @@ data class UserDto @JvmOverloads constructor(
         val password: String,
         val movies: Set<Movie>? = HashSet(),
         val isAdmin: Boolean,
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/IK4P1N4
 ){
     companion object{
         @JvmStatic
@@ -19,7 +23,12 @@ data class UserDto @JvmOverloads constructor(
                     from.email,
                     from.password,
                     from.movieList,
+<<<<<<< HEAD
                     from.authorities.stream().anyMatch{a-> a.authority.equals("ROLE_ADMIN")})
+=======
+                    from.authorities.stream
+                    ().anyMatch{a-> a.authority.equals("ROLE_ADMIN")})
+>>>>>>> origin/IK4P1N4
         }
     }
 }

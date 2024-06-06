@@ -25,6 +25,7 @@ const nextConfig = {
   },
 };
 
+<<<<<<< HEAD
 module.exports = {
   webpack(config) {
     config.module.rules.push({
@@ -41,4 +42,6 @@ module.exports = {
   },
 };
 
+=======
+>>>>>>> origin/IK4P1N4
 module.exports = nextConfig;

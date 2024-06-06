@@ -54,6 +54,10 @@ public class UserService {
 
 
     public UserDto getUserById(Long id) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/IK4P1N4
         return UserDto.convert(this.findUserByID(id));
     }
 
