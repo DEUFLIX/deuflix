@@ -100,6 +100,8 @@ const Poster = ({ posterData, genreList }: IProps) => {
 
   const ageRestrictionIcon = getAgeRestrictionIcon();
 
+  const year = typeof posterData.year === 'object' ? posterData.year.year : posterData.year;
+
   return (
       <div key={posterData?.id} className="p-0">
         {router !== "/" && (
@@ -220,7 +222,7 @@ const Poster = ({ posterData, genreList }: IProps) => {
                   {posterData?.year && (
                       <p>
                         <span className="text-gray-400">Year: </span>
-                        {posterData.year}
+                        <span>{year}</span>
                       </p>
                   )}
                 </div>
