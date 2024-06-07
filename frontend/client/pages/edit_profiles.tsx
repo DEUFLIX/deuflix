@@ -9,7 +9,7 @@ import { UserContext } from "../context/UserContext";
 type Profile = {
     id: number;
     UId: number;
-    pName: string;
+    pname: string;
     pImage: string | null; // 프로필 이미지 경로
     age: string;
 };
@@ -28,7 +28,7 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
     useEffect(() => {
         console.log("Profile data:", profile);
         if (profile) {
-            setPName(profile.pName);
+            setPName(profile.pname);
             setPImage(profile.pImage || "");
             setAge(profile.age);
         }
@@ -110,14 +110,17 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
                     </label>
                     <label className="block text-white">
                         Age
-                        <input
-                            type="text"
+                        <select
                             className="mt-1 block w-full rounded bg-gray-900 text-white px-3 py-2"
-
-                            placeholder={age}
+                            value={age}
                             onChange={(e) => setAge(e.target.value)}
                             required
-                        />
+                        >
+                            <option value="ALL">ALL</option>
+                            <option value="12">12</option>
+                            <option value="15">15</option>
+                            <option value="18">18</option>
+                        </select>
                     </label>
                 </div>
                 <button

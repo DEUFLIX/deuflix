@@ -33,7 +33,6 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
         if (userState?.state?.id) {
             router.push(`/create_profile?userId=${userState.state.id}`);
         } else {
-            // 로그인 되어 있지 않은 경우 처리
             console.error("User is not logged in");
         }
     };
@@ -52,7 +51,7 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
 
     useEffect(() => {
         profiles.forEach(profile => {
-            console.log("Profile:", profile); // 프로필 전체 출력
+            console.log("Profile:", profile);
             console.log("pImage: " + profile.pImage);
         });
     }, [profiles]);
@@ -87,58 +86,49 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
 
             <div className="flex flex-col items-center justify-center h-screen z-10">
                 <h1 className="text-4xl font-semibold mb-8">{isEditMode ? "수정할 프로필을 선택하세요." : "Deuflix를 실행할 프로필을 선택해주세요."}</h1>
-                <div className="flex flex-wrap justify-center items-center space-x-4">
+                <div className="flex flex-wrap justify-center items-center space-x-10">
                     {profiles.map((profile) => (
-                        <div key={profile.id} className="relative bg-gray-800 text-white px-4 py-2 rounded cursor-pointer flex-1 flex flex-col items-center mb-4">
+                        <div key={profile.id} className="flex flex-col items-center mb-4 cursor-pointer">
                             <button
                                 onClick={() => isEditMode ? handleEditProfile(profile.id) : handleProfileClick(profile.id, profile.pname)}
-                                className={`relative bg-gray-800 text-white px-4 py-2 rounded cursor-pointer z-10 flex flex-col items-center ${isEditMode ? "opacity-50 cursor-pointer" : ""}`}
+                                className="relative flex flex-col items-center"
                             >
-                                <div className="h-24 w-24 overflow-hidden">
+                                <div className={`relative h-24 w-24 overflow-hidden ${isEditMode ? 'bg-gray-800 opacity-80' : ''}`}>
                                     {profile.pImage ? (
                                         <img src={profile.pImage} alt={profile.pname} className="h-full w-full object-cover" />
                                     ) : (
                                         <img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png?20201013161117" alt="Default Profile" className="h-full w-full object-cover" />
                                     )}
+                                    {isEditMode && (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-30">
+                                            <img src="/pencil.png" alt="Edit" className="h-12 w-12" />
+                                        </div>
+                                    )}
                                 </div>
-                                <span className="mt-2">{profile.pname || 'No Name'}</span>
+                                <span className="mt-2 text-white">{profile.pname || 'No Name'}</span>
                             </button>
                         </div>
                     ))}
                     {!isEditMode && profiles.length < 4 && (
-                        <div className="relative bg-gray-800 text-white px-4 py-2 rounded cursor-pointer flex-1 flex flex-col items-center mb-4">
-                            <button
-                                onClick={handleCreateProfile}
-                                className="relative bg-gray-800 text-white px-4 py-2 rounded cursor-pointer z-10 flex flex-col items-center"
-                            >
-                                <div className="h-24 w-24 flex items-center justify-center">
-                                    <span className="text-2xl">+</span>
+                        <div className="flex flex-col items-center mb-4 cursor-pointer">
+                            <button onClick={handleCreateProfile} className="flex flex-col items-center">
+                                <div className="h-24 w-24 flex items-center justify-center rounded-full bg-gray-800">
+                                    <span className="text-2xl text-white">+</span>
                                 </div>
-                                <span className="mt-2">Create Profile</span>
+                                <span className="mt-2 text-white">Create Profile</span>
                             </button>
                         </div>
                     )}
                 </div>
                 {!isEditMode && (
-                    <button
-                        onClick={enterEditMode}
-                        className="relative bg-gray-800 text-white px-4 py-2 rounded cursor-pointer z-10 flex flex-col items-center mt-4"
-                    >
-                        <div className="h-24 w-24 flex items-center justify-center">
-                            <span className="text-2xl">✏️</span>
-                        </div>
-                        <span className="mt-2">프로필 수정</span>
+                    <button onClick={enterEditMode} className="flex flex-col items-center mt-4 cursor-pointer">
+
+                        <span className="mt-4 px-4 py-2 border-4 border-white-600 text-white rounded cursor-pointer bg-transparent">프로필 수정</span>
                     </button>
                 )}
                 {isEditMode && (
-                    <button
-                        onClick={exitEditMode}
-                        className="relative bg-gray-800 text-white px-4 py-2 rounded cursor-pointer z-10 flex flex-col items-center mt-4"
-                    >
-                        <div className="h-24 w-24 flex items-center justify-center">
-                            <span className="text-2xl">❌</span>
-                        </div>
-                        <span className="mt-2">수정 취소</span>
+                    <button onClick={exitEditMode} className="flex flex-col items-center mt-4 cursor-pointer">
+                        <span className="mt-4 px-4 py-2 border-4 border-white-600 text-white rounded cursor-pointer bg-transparent">수정 취소</span>
                     </button>
                 )}
             </div>
