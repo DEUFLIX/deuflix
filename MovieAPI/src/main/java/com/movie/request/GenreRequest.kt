@@ -1,19 +1,23 @@
 package com.movie.request
 
 import com.movie.model.Genre
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.NotNull
 
-data class GenreRequest(
-        val id:Int?,
-        @field:NotNull(message = "field cannot be Null")
-        @field:NotBlank(message = "field cannot be Empty")
-        val genre:String?
-){
-    companion object{
-        @JvmStatic
-        fun convert(from: Genre): GenreRequest{
-            return GenreRequest(from.id,from.genre)
+class GenreRequest {
+    var id: Int? = null
+    var genre: String? = null
+    var type: String? = null
+
+    constructor()
+
+    constructor(id: Int?, genre: String?, type: String?) {
+        this.id = id
+        this.genre = genre
+        this.type = type
+    }
+
+    companion object {
+        fun fromEntity(genre: Genre): GenreRequest {
+            return GenreRequest(genre.id, genre.genre, genre.type)
         }
     }
 }

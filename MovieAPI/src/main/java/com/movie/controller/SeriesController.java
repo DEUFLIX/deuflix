@@ -1,5 +1,6 @@
 package com.movie.controller;
 
+import com.movie.dto.SeriesDto;
 import com.movie.request.SeriesRequest;
 import com.movie.request.SeriesUpdateRequest;
 import com.movie.service.SeriesService;
@@ -11,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import com.movie.dto.SeriesDto;
+
 import javax.validation.Valid;
 import java.util.List;
 
@@ -70,7 +71,6 @@ public class SeriesController {
         }
     }
 
-
     // Get Series By Genre ID
     @Operation(summary = "Get All Series By Genre ID")
     @GetMapping("/{id}/genre")
@@ -110,7 +110,7 @@ public class SeriesController {
         return ResponseEntity.ok().build();
     }
 
-    // Search Series
+    // Search Series By String Keyword
     @Operation(summary = "Search Series By String Keyword")
     @GetMapping("/search/{keyword}")
     public ResponseEntity<List<SeriesDto>> searchSeriesByKeyword(@PathVariable String keyword) {

@@ -10,22 +10,25 @@ import Lists from "../components/Lists";
 import { UserContext } from "../context/UserContext";
 
 interface IProps {
-  posterData: Movie | Series;
+  posterData: Movie | Series | null;
   genreList: Genre[];
+  error?: string;
 }
 
-const Home = ({ posterData, genreList }: IProps) => {
+const Home = ({ posterData, genreList, error }: IProps) => {
   const [liste, setListe] = useState<List[]>([]);
   const currentGenre = useContext(GenreContext);
   const router = useRouter();
-  const currentType = router.asPath.substring(1);
+  const currentType = router.asPath.substring(1) || 'defaultType';
   const state = useContext(UserContext);
 
   useEffect(() => {
     const getListe = async () => {
       try {
+        const type = currentType || 'defaultType';
+        const genre = currentGenre?.currentGenre || 'defaultGenre';
         const res = await axios.get(
-            `${process.env.NEXT_PUBLIC_API}/lists/genre/?type=${currentType}&genre=${currentGenre?.currentGenre}`
+            `http://localhost:8080/api/lists/genre/?type=${type}&genre=${genre}`
         );
         setListe(res.data);
       } catch (err) {
@@ -50,6 +53,14 @@ const Home = ({ posterData, genreList }: IProps) => {
     );
   }
 
+  if (error) {
+    return (
+        <div className="relative h-screen bg-gradient-to-b from-gray-900/10 to-[#010511] lg:h-[95vh] flex items-center justify-center text-white">
+          <h1>Error: {error}</h1>
+        </div>
+    );
+  }
+
   return (
       <div className="relative h-screen bg-gradient-to-b from-gray-900/10 to-[#010511] lg:h-[95vh]">
         <Head>
@@ -71,32 +82,49 @@ export default Home;
 export const getServerSideProps = async () => {
   try {
     const [randomMovieResponse, randomSeriesResponse, genreListResponse] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API}/movies/random?type=movies`),
-      fetch(`${process.env.NEXT_PUBLIC_API}/series/random`),
-      fetch(`${process.env.NEXT_PUBLIC_API}/genre`)
+      fetch(`http://localhost:8080/api/v1/movies/random?type=movies`),
+      fetch(`http://localhost:8080/api/v1/series/random`),
+      fetch(`http://localhost:8080/api/genres`)
     ]);
+
+    // Check each response
+    console.log("randomMovieResponse:", randomMovieResponse);
+    console.log("randomSeriesResponse:", randomSeriesResponse);
+    console.log("genreListResponse:", genreListResponse);
+
+    if (!randomMovieResponse.ok) {
+      console.error("Failed to fetch random movie data");
+      throw new Error("Failed to fetch random movie data");
+    }
+    if (!randomSeriesResponse.ok) {
+      console.error("Failed to fetch random series data");
+      throw new Error("Failed to fetch random series data");
+    }
+    if (!genreListResponse.ok) {
+      console.error("Failed to fetch genre list");
+      throw new Error("Failed to fetch genre list");
+    }
 
     const randomMovie = await randomMovieResponse.json();
     const randomSeries = await randomSeriesResponse.json();
     const genreList = await genreListResponse.json();
 
-    const isMovie = Math.random() < 0.5; // 50% 확률로 movie 또는 series 선택
+    // Log the data
+    console.log("Random movie data:", randomMovie);
+    console.log("Random series data:", randomSeries);
+    console.log("Genre list data:", genreList);
+
+    const isMovie = Math.random() < 0.5;
     const selectedData = isMovie ? randomMovie : randomSeries;
-
-    const suggestionsResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API}/getSuggestions?${isMovie ? 'movieId' : 'seriesId'}=${selectedData.id}`
-    );
-
-    const suggestionsData = await suggestionsResponse.json();
 
     return {
       props: {
-        posterData: { ...selectedData, ...suggestionsData },
+        posterData: selectedData,
         genreList,
       },
     };
   } catch (error: any) {
-    console.error("Error fetching data:", error);
+    console.error("Error fetching data:", error.message);
     return {
       props: {
         posterData: null,

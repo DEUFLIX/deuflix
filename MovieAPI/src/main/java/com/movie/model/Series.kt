@@ -8,98 +8,61 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "series")
-class Series {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null
+data class Series(
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        val id: Long? = null,
 
-    var title: String? = null
+        var title: String,
+        var description: String,
+        var seriesImage: String?,
+        var seriesUrl: String?,
+        var trailer: String?,
+        var year: Int,
 
-    @Column(length = 512)
-    var description: String? = null
+        @ManyToMany(cascade = [CascadeType.ALL])
+        @JoinTable(
+                name = "series_genre",
+                joinColumns = [JoinColumn(name = "series_id")],
+                inverseJoinColumns = [JoinColumn(name = "genre_id")]
+        )
+        @OnDelete(action = OnDeleteAction.CASCADE)
+        @JsonIgnore
+        var genres: Set<Genre> = HashSet(),
 
-    var seriesImage: String? = null
-    var trailer: String? = null
-    var seriesUrl: String? = null
-
-    var year: Int = 1995 // 기본값 설정
-
-    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.MERGE])
-    @JoinTable(
-            name = "series_genre",
-            joinColumns = [JoinColumn(name = "series_id")],
-            inverseJoinColumns = [JoinColumn(name = "genre_id")]
+        @OneToMany(mappedBy = "series", cascade = [CascadeType.ALL], orphanRemoval = true)
+        var episodes: List<Episode> = mutableListOf()
+) {
+    constructor(
+            title: String,
+            description: String,
+            seriesImage: String?,
+            seriesUrl: String?,
+            trailer: String?,
+            year: Int,
+            genres: Set<Genre>
+    ) : this(
+            id = null,
+            title = title,
+            description = description,
+            seriesImage = seriesImage,
+            seriesUrl = seriesUrl,
+            trailer = trailer,
+            year = year,
+            genres = genres
     )
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    var genres: Set<Genre> = HashSet()
 
-    @ManyToMany
-    @JoinTable(name = "series_user", joinColumns = [JoinColumn(name = "series_id")], inverseJoinColumns = [JoinColumn(name = "user_id")])
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
-    var users: Set<User> = HashSet()
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+        other as Series
 
-    constructor()
-
-    constructor(
-            id: Long?,
-            title: String?,
-            description: String?,
-            seriesImage: String?,
-            trailer: String?,
-            seriesUrl: String?,
-            year: Int,
-            genres: Set<Genre>
-    ) {
-        this.id = id
-        this.title = title
-        this.description = description
-        this.seriesImage = seriesImage
-        this.trailer = trailer
-        this.seriesUrl = seriesUrl
-        this.year = year
-        this.genres = genres
+        return id != null && id == other.id
     }
 
-    constructor(
-            title: String?,
-            description: String?,
-            seriesImage: String?,
-            trailer: String?,
-            seriesUrl: String?,
-            year: Int,
-            genres: Set<Genre>
-    ) {
-        this.title = title
-        this.description = description
-        this.seriesImage = seriesImage
-        this.trailer = trailer
-        this.seriesUrl = seriesUrl
-        this.year = year
-        this.genres = genres
-    }
-
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false
-        val series = o as Series
-        return id != null && id == series.id
-    }
-
-    override fun hashCode(): Int {
-        return javaClass.hashCode()
-    }
+    override fun hashCode(): Int = javaClass.hashCode()
 
     override fun toString(): String {
-        return "Series{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", seriesImage='" + seriesImage + '\'' +
-                ", trailer='" + trailer + '\'' +
-                ", seriesUrl='" + seriesUrl + '\'' +
-                ", year=" + year +
-                ", genres=" + genres +
-                '}'
+        return this::class.simpleName + "(id = $id , title = $title , description = $description , seriesImage = $seriesImage , seriesUrl = $seriesUrl , trailer = $trailer , year = $year )"
     }
 }

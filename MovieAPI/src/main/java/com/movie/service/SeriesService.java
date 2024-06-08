@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,22 +36,15 @@ public class SeriesService {
         this.genreRepository = genreRepository;
     }
 
-    // Get All Series
     public List<SeriesDto> getAllSeries() {
         return seriesRepository.findAll().stream().map(SeriesDto::convert).collect(Collectors.toList());
     }
 
     public List<SeriesDto> getSeriesByTypes(String type) {
-        boolean control = type.equals("series");
-        if (!control) {
-            return this.seriesRepository.findAll()
-                    .stream().map(SeriesDto::convert).toList();
-        }
-        return List.of(this.seriesRepository.findSeriesByIsSeries(control))
-                .stream().map(SeriesDto::convert).toList();
+        return this.seriesRepository.findAll()
+                .stream().map(SeriesDto::convert).collect(Collectors.toList());
     }
 
-    // Get Series By Genre ID
     public List<SeriesDto> getAllSeriesByGenreId(Integer id) {
         this.genreRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Genre is not found"));
@@ -58,7 +52,6 @@ public class SeriesService {
                 .stream().map(SeriesDto::convert).collect(Collectors.toList());
     }
 
-    // Get Series By Genre
     public List<SeriesDto> getAllSeriesByGenre(String genre) {
         return this.seriesRepository.findSeriesByGenresGenre(genre)
                 .stream()
@@ -66,22 +59,19 @@ public class SeriesService {
                 .collect(Collectors.toList());
     }
 
-    // Get Series By ID
     public SeriesDto getSeriesById(Long id) {
         return SeriesDto.convert(this.findSeriesByID(id));
     }
 
     public SeriesDto getRandomOneSeries(String type) {
         logger.info("Fetching random series of type: {}", type);
-        if (type == null) {
-            throw new IllegalArgumentException("Type cannot be null");
-        }
-        boolean control = type.equals("series");
+        List<Series> seriesList;
         try {
-            Series series = this.seriesRepository.findSeriesByIsSeries(control);
-            if (series == null) {
+            seriesList = this.seriesRepository.findAll();
+            if (seriesList == null || seriesList.isEmpty()) {
                 throw new ResourceNotFoundException("No random series found for type: " + type);
             }
+            Series series = seriesList.get(new Random().nextInt(seriesList.size()));
             logger.info("Fetched random series: {}", series);
             return SeriesDto.convert(series);
         } catch (Exception e) {
@@ -90,52 +80,46 @@ public class SeriesService {
         }
     }
 
-
-    // Create Series
     public SeriesDto createSeries(SeriesRequest request) {
         Series series = new Series(
                 request.getTitle(),
                 request.getDescription(),
                 request.getSeriesImage(),
-                request.getTrailer(),
                 request.getSeriesUrl(),
+                request.getTrailer(),
                 request.getYear(),
-                Objects.requireNonNull(request.getGenres())
+                request.getGenres()
         );
+
         this.addSeriesToGenre(series, request.getGenres());
         Series savedOne = this.seriesRepository.save(series);
         return SeriesDto.convert(savedOne);
     }
 
-    // Update Series
     public SeriesDto updateSeries(Long id, SeriesUpdateRequest request) {
         Series series = this.findSeriesByID(id);
-        Series updateSeries = new Series(
-                series.getId(),
-                request.getTitle(),
-                request.getDescription(),
-                request.getSeriesImage(),
-                request.getTrailer(),
-                request.getSeriesUrl(),
-                request.getYear(),
-                series.getGenres() // Add existing genres
-        );
+        series.setTitle(request.getTitle());
+        series.setDescription(request.getDescription());
+        series.setSeriesImage(request.getSeriesImage());
+        series.setSeriesUrl(request.getSeriesUrl());
+        series.setTrailer(request.getTrailer());
+        series.setYear(request.getYear());
+        series.setGenres(request.getGenres());
 
-        Objects.requireNonNull(updateSeries.getGenres()).removeAll(Objects.requireNonNull(series.getGenres()).stream().map(a -> {
+        Objects.requireNonNull(series.getGenres()).removeAll(Objects.requireNonNull(series.getGenres()).stream().map(a -> {
             Genre genre = this.genreRepository.findByGenre(a.getGenre());
             Objects.requireNonNull(genre.getSeries()).remove(series);
             return genre;
         }).collect(Collectors.toSet()));
-        this.addSeriesToGenre(updateSeries, request.getGenres());
+        this.addSeriesToGenre(series, request.getGenres());
 
-        Series savedOne = this.seriesRepository.save(updateSeries);
+        Series savedOne = this.seriesRepository.save(series);
         return SeriesDto.convert(savedOne);
     }
 
     private Series addSeriesToGenre(Series series, Set<Genre> genres) {
         series.getGenres().addAll(genres.stream().map(a -> {
             Genre genre = this.genreRepository.findByGenre(a.getGenre());
-
             if (genre == null)
                 throw new ResourceNotFoundException("Genre could not found => " + genres
                         .stream().map(Genre::getGenre).collect(Collectors.toList()));
@@ -145,7 +129,6 @@ public class SeriesService {
         return series;
     }
 
-    // Delete Series By ID
     public void deleteSeriesById(Long id) {
         Series series = this.findSeriesByID(id);
         if (series.getSeriesImage() != null)
@@ -153,13 +136,11 @@ public class SeriesService {
         this.seriesRepository.delete(series);
     }
 
-    // Search Series
     public List<SeriesDto> searchSeriesByKeyword(String keyword) {
         return this.seriesRepository.searchSeriesByKeyword(keyword).stream()
                 .map(SeriesDto::convert).collect(Collectors.toList());
     }
 
-    // Find Series By ID
     protected Series findSeriesByID(Long id) {
         return this.seriesRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Series is not found"));
@@ -167,25 +148,16 @@ public class SeriesService {
 
     public List<SeriesDto> getLastFiveSeries() {
         return this.seriesRepository.findLastFiveSeries()
-                .stream().map(SeriesDto::convert).toList();
+                .stream().map(SeriesDto::convert).collect(Collectors.toList());
     }
 
     public SeriesDto addImageToSeries(Long seriesId, MultipartFile file) {
         Series series = this.findSeriesByID(seriesId);
         String fileName = imageService.uploadFile(file);
-        Series imgSeries = new Series(
-                series.getId(),
-                series.getTitle(),
-                series.getDescription(),
-                fileName,
-                series.getTrailer(),
-                series.getSeriesUrl(),
-                series.getYear(),
-                series.getGenres() // Add existing genres
-        );
+        series.setSeriesImage(fileName);
 
-        this.seriesRepository.save(imgSeries);
-        return SeriesDto.convert(imgSeries);
+        Series savedOne = this.seriesRepository.save(series);
+        return SeriesDto.convert(savedOne);
     }
 
     public String imgUpload(MultipartFile file) {

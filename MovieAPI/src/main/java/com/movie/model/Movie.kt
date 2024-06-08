@@ -26,7 +26,12 @@ class Movie {
         @JoinColumn(name = "movieYear_id")
         var year: MovieYear? = null
 
-        @ManyToMany(mappedBy = "movies", fetch = FetchType.LAZY, cascade = [CascadeType.MERGE])
+        @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.MERGE])
+        @JoinTable(
+                name = "movie_genre",
+                joinColumns = [JoinColumn(name = "movie_id")],
+                inverseJoinColumns = [JoinColumn(name = "genre_id")]
+        )
         @OnDelete(action = OnDeleteAction.CASCADE)
         var genres: Set<Genre> = HashSet()
 

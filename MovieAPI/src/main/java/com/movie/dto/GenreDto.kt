@@ -1,17 +1,18 @@
 package com.movie.dto
 
-import com.movie.model.Genre
-import com.movie.model.Movie
+class GenreDto {
+    // getter와 setter
+    var id: Int? = null
+    var genre: String? = null
+    var type: String? = null
 
-data class GenreDto @JvmOverloads constructor(
-        val id: Int?=null,
-        val genre:String?,
-        val movies: Set<Movie>?=null
-){
-    companion object{
-        @JvmStatic
-        fun convert(from: Genre): GenreDto{
-            return GenreDto(from.id,from.genre,from.movies)
-        }
+    // 기본 생성자
+    constructor()
+
+    // 생성자
+    constructor(id: Int?, genre: String?, type: String?) {
+        this.id = id
+        this.genre = genre
+        this.type = type
     }
 }

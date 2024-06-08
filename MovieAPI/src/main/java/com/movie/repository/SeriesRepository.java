@@ -17,8 +17,8 @@ public interface SeriesRepository extends JpaRepository<Series, Long> {
     @Query(value = "SELECT * FROM series ORDER BY RAND() LIMIT 10", nativeQuery = true)
     List<Series> findRandomSeries();
 
-    @Query(value = "SELECT * FROM series ORDER BY RAND() LIMIT 1", nativeQuery = true)
-    Series findSeriesByIsSeries(boolean control);
+    @Query(value = "SELECT * FROM series WHERE is_series = ?1", nativeQuery = true)
+    List<Series> findSeriesByIsSeries(boolean control);  // 수정된 부분
 
     @Query(value = "SELECT * FROM series ORDER BY id DESC LIMIT 5", nativeQuery = true)
     List<Series> findLastFiveSeries();

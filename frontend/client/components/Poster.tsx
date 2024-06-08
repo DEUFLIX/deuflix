@@ -11,11 +11,11 @@ import VideoPlayer from "./VideoPlayer";
 import axios from 'axios';
 
 interface IProps {
-  posterData: Movie | Series;
+  posterData: Movie | Series | null;
   genreList: Genre[];
 }
 
-const Poster = ({ posterData, genreList }: IProps) => {
+const Poster = ({ posterData, genreList = [] }: IProps) => {
   const router = useRouter().asPath;
   const currentGenre = useContext(GenreContext);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
@@ -25,11 +25,12 @@ const Poster = ({ posterData, genreList }: IProps) => {
   const [actors, setActors] = useState<string[]>([]);
 
   useEffect(() => {
+    console.log('Poster Data:', posterData); // 디버깅을 위해 posterData 로그 출력
     if (posterData && 'id' in posterData) {
       const fetchSuggestions = async () => {
         try {
           const idParam = 'movieImage' in posterData ? 'movieId' : 'seriesId';
-          const response = await axios.get(`http://localhost:3000/api/getSuggestions?${idParam}=${posterData.id}`);
+          const response = await axios.get(`http://localhost:8080/api/v1/getSuggestions?${idParam}=${posterData.id}`);
           setSuggestions(response.data.suggestions);
           setAgeRestriction(response.data.age_restriction);
           setActors(response.data.actors);
@@ -65,9 +66,9 @@ const Poster = ({ posterData, genreList }: IProps) => {
 
   const handleAddToList = async () => {
     try {
-      const response = await axios.post('http://localhost:3000/api/addToList', {
+      const response = await axios.post('http://localhost:8080/api/v1/addToList', {
         userId: 1,
-        movieId: posterData.id,
+        movieId: posterData?.id,
       });
       alert(response.data.message);
     } catch (error) {
@@ -78,8 +79,8 @@ const Poster = ({ posterData, genreList }: IProps) => {
 
   const handleThumbUp = async () => {
     try {
-      const response = await axios.post('http://localhost:3000/api/incrementSuggestion', {
-        movieId: posterData.id,
+      const response = await axios.post('http://localhost:8080/api/v1/incrementSuggestion', {
+        movieId: posterData?.id,
       });
       alert(response.data.message);
       setSuggestions((prev) => prev + 1);
@@ -100,10 +101,11 @@ const Poster = ({ posterData, genreList }: IProps) => {
 
   const ageRestrictionIcon = getAgeRestrictionIcon();
 
-  const year = typeof posterData.year === 'object' ? posterData.year.year : posterData.year;
+  // Ensure 'year' is a string
+  const year = posterData && typeof posterData.year === 'object' ? posterData.year.year : posterData?.year?.toString();
 
   return (
-      <div key={posterData?.id} className="p-0">
+      <div key={posterData?.id || 'no-id'} className="p-0">
         {router !== "/" && (
             <div className="flex space-x-4 pt-20 z-20">
               <h1 className="font-bold md:max-w-lg md:text-lg lg:max-w-2xl lg:text-2xl">
@@ -114,12 +116,11 @@ const Poster = ({ posterData, genreList }: IProps) => {
                   onChange={(e) => currentGenre?.setCurrentGenre(e.target.value)}
               >
                 <option value="">All</option>
-                {genreList &&
-                    genreList.map((genre) => (
-                        <option key={genre.id} value={genre.genre}>
-                          {genre.genre}
-                        </option>
-                    ))}
+                {genreList.map((genre) => (
+                    <option key={genre.id} value={genre.genre}>
+                      {genre.genre}
+                    </option>
+                ))}
               </select>
             </div>
         )}
@@ -128,7 +129,7 @@ const Poster = ({ posterData, genreList }: IProps) => {
             {posterData && ('movieImage' in posterData ? (
                 <img src={(posterData as Movie).movieImage} alt="Poster Image" className="h-[95vh] w-[100vw] object-cover" />
             ) : (
-                <img src={(posterData as Series).thumbnailImage} alt="Poster Image" className="h-[95vh] w-[100vw] object-cover" />
+                <img src={(posterData as Series).seriesImage} alt="Poster Image" className="h-[95vh] w-[100vw] object-cover" />
             ))}
           </div>
           <h1 className="text-2xl font-bold md:text-3xl lg:text-7xl">
@@ -154,10 +155,10 @@ const Poster = ({ posterData, genreList }: IProps) => {
             </button>
           </div>
         </div>
-        {isVideoOpen && (
+        {isVideoOpen && posterData && (
             <VideoPlayer
-                videoUrl={'movieUrl' in posterData ? (posterData as Movie).movieUrl : (posterData as Series).episodes[0]?.url}
-                subtitlesUrl={'trailer' in posterData ? (posterData as Movie).trailer : (posterData as Series).trailerUrl}
+                videoUrl={'movieUrl' in posterData ? (posterData as Movie).movieUrl : (posterData as Series).seriesUrl}
+                subtitlesUrl={posterData && 'trailer' in posterData ? (posterData as Movie).trailer : (posterData as Series).trailer}
                 onClose={handleCloseVideo}
             />
         )}
@@ -172,7 +173,12 @@ const Poster = ({ posterData, genreList }: IProps) => {
                 </button>
                 <div className="relative w-full h-1/2">
                   <video className="w-full h-full object-cover" autoPlay muted>
-                    <source src={'trailer' in posterData ? (posterData as Movie).trailer : (posterData as Series).trailerUrl} type="video/mp4" />
+                    {posterData && 'trailer' in posterData && (
+                        <source src={(posterData as Movie).trailer} type="video/mp4" />
+                    )}
+                    {posterData && !('trailer' in posterData) && (
+                        <source src={(posterData as Series).trailer} type="video/mp4" />
+                    )}
                     Your browser does not support the video tag.
                   </video>
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
@@ -192,7 +198,7 @@ const Poster = ({ posterData, genreList }: IProps) => {
                     </button>
                   </div>
                 </div>
-                <div className="p-4 text-white">
+                <div className="p-4 text-white overflow-y-auto h-1/2 custom-scroll">
                   <h1 className="text-2xl font-bold">{posterData?.title}</h1>
                   <p>{posterData?.description}</p>
                   <div className="flex items-center justify-between">
@@ -224,6 +230,24 @@ const Poster = ({ posterData, genreList }: IProps) => {
                         <span className="text-gray-400">Year: </span>
                         <span>{year}</span>
                       </p>
+                  )}
+                  {/* 시리즈의 경우 에피소드 목록 추가 */}
+                  {'episodes' in posterData && (
+                      <div className="mt-4">
+                        <h2 className="text-xl font-bold">회차:</h2>
+                        <ul>
+                          {(posterData as Series).episodes.map(episode => (
+                              <li key={episode.id} className="mt-2 flex items-start">
+                                <img src={episode.thumbnailImage} alt={`Episode ${episode.episodeNumber}`} className="w-32 h-20 mr-4 object-cover" />
+                                <div>
+                                  <h3 className="text-lg font-semibold">{episode.episodeNumber}화 {episode.title}</h3>
+                                  <p className="text-sm">{episode.description}</p>
+                                  <p className="text-sm">Duration: {episode.duration} minutes</p>
+                                </div>
+                              </li>
+                          ))}
+                        </ul>
+                      </div>
                   )}
                 </div>
               </div>

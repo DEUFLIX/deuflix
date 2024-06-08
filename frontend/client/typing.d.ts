@@ -17,6 +17,9 @@ export interface Series {
   description: string;
   isMovie: boolean;
   thumbnailImage: string;
+  seriesImage: string;  // 추가
+  seriesUrl: string;    // 추가
+  trailer: string;      // 추가
   trailerUrl: string;
   genres: Genre[];
   episodes: Episode[];
