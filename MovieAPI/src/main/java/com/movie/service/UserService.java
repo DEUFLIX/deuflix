@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.http.ResponseEntity;
 
 @Service
 public class UserService {
@@ -131,6 +132,17 @@ public class UserService {
         return UserDto.convert(user);
     }
 
+    // Get email by user ID
+    public ResponseEntity<String> getEmailById(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            String email = user.get().getEmail();
+            return ResponseEntity.ok(email);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     private Role userRole(Boolean isAdmin) {
         Role role;
         if (isAdmin) {
@@ -147,4 +159,6 @@ public class UserService {
         return this.userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User is not found"));
     }
+
+
 }

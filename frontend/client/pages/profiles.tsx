@@ -22,7 +22,9 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
     const userState = useContext(UserContext);
 
     const handleProfileClick = (profileId: number, profileName: string) => {
+        window.localStorage.setItem('selectedProfileId', profileId.toString()); // profileId 저장
         window.localStorage.setItem('selectedProfileName', profileName);
+        console.log('Profile ID:', profileId); // profileId 로그 출력
         router.push("/");
     };
 

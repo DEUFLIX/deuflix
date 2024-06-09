@@ -7,7 +7,8 @@ data class ProfileDto(
         val UId: Long,
         val pName: String,
         val pImage: String,
-        val age: String
+        val age: String,
+        val pPw: String
 ) {
     companion object {
         @JvmStatic
@@ -17,7 +18,8 @@ data class ProfileDto(
                     profile.UId,
                     profile.pName,
                     profile.pImage,
-                    profile.age
+                    profile.age,
+                    profile.pPw
             )
         }
     }

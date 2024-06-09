@@ -47,7 +47,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateUser(@Parameter(description = "id of user to be update")@PathVariable Long id,
-                                              @Valid @RequestBody UserUpdateRequest request){
+                                           @Valid @RequestBody UserUpdateRequest request){
         this.userService.updateUser(id,request);
         return  ResponseEntity.ok().build();
     }
@@ -73,8 +73,12 @@ public class UserController {
         return ResponseEntity.ok(this.userService.removeMovieFromUserMovieList(id,movieId));
     }
 
-
-
+    // Get email by user ID
+    @Operation(summary = "Get Email By User ID")
+    @GetMapping("/{id}/email")
+    public ResponseEntity<String> getEmailById(@PathVariable Long id) {
+        return userService.getEmailById(id);
+    }
 
 
 }

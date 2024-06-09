@@ -22,7 +22,7 @@ public class ProfileController {
         return profileService.getAllProfiles();
     }
 
-    @GetMapping("/{uId}")
+    @GetMapping("/user/{uId}")
     public List<ProfileDto> getProfilesByUId(@PathVariable Long uId) {
         return profileService.getProfilesByUId(uId);
     }
@@ -45,5 +45,10 @@ public class ProfileController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/profile/{id}/image")
+    public ResponseEntity<String> getpImageByid(@PathVariable Integer id) {
+        return profileService.getpImageByid(id);
     }
 }

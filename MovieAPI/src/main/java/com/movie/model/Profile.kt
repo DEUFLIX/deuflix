@@ -19,13 +19,17 @@ data class Profile(
         var pImage: String,
 
         @Column(name = "age")
-        var age: String
+        var age: String,
+
+        @Column(name = "p_pw")
+        var pPw: String
 ) {
-    constructor(uId: Long, pName: String, pImage: String, age: String) : this(
+    constructor(uId: Long, pName: String, pImage: String, age: String, pPw: String) : this(
             id = 0,
             UId = uId,
             pName = pName,
             pImage = pImage,
-            age = age
+            age = age,
+            pPw = pPw
     )
 }

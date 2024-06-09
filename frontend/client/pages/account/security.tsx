@@ -13,7 +13,6 @@ const Security = () => {
         { text: '계정', icon: faHouse, link: 'account' },
         { text: '멤버십', icon: faExchangeAlt, link: '/account/membership' },
         { text: '보안', icon: faShieldAlt, link: '/account/security' },
-        { text: '프로필', icon: faUser, link: '/account/profile' },
     ];
 
     return (

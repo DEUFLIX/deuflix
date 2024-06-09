@@ -61,4 +61,14 @@ public class ProfileService {
             return null;
         }
     }
+
+    public ResponseEntity<String> getpImageByid(Integer id) {
+        Optional<Profile> profile = profileRepository.findById(id);
+        if (profile.isPresent()) {
+            String imageUrl = profile.get().getPImage();
+            return ResponseEntity.ok(imageUrl);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

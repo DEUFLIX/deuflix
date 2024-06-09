@@ -11,6 +11,10 @@ const Settings = () => {
         { text: '이전 페이지', icon: faArrowLeft, link: '/account/account' },
     ];
 
+    const handleProfileLockClick = () => {
+        router.push('/account/profilelock');
+    };
+
     const handleViewingRestrictionsClick = () => {
         router.push('/account/viewage');
     };
@@ -20,7 +24,7 @@ const Settings = () => {
             <h1 className={`${styles.text3xl} font-bold mb-8`}>프로필 설정</h1>
             <section className={`${styles.accountOverview} mb-8 p-4 border rounded-lg`}>
                 <h2 className={`${styles.accountOverviewH2} mb-4`}>설정</h2>
-                <div className={`${styles.quickLinkItem} flex items-center justify-between cursor-pointer`}>
+                <div className={`${styles.quickLinkItem} flex items-center justify-between cursor-pointer`} onClick={handleProfileLockClick}>
                     <div className="flex items-center">
                         <FontAwesomeIcon icon={faLock} className={`${styles.quickLinkItemI} mr-2`} />
                         <span className={styles.quickLinkItemSpan}>프로필 잠금</span>

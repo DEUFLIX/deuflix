@@ -25,8 +25,8 @@ const nextConfig = {
   },
 };
 
-<<<<<<< HEAD
 module.exports = {
+  ...nextConfig,
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
@@ -42,6 +42,4 @@ module.exports = {
   },
 };
 
-=======
->>>>>>> origin/IK4P1N4
 module.exports = nextConfig;
