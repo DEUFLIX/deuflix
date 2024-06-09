@@ -55,6 +55,7 @@ public class ProfileService {
             profile.setPName(request.getPName());
             profile.setPImage(request.getPImage());
             profile.setAge(request.getAge());
+            profile.setPPw(request.getPPw()); // setPw 메서드 추가
             profile = profileRepository.save(profile);
             return ProfileDto.fromEntity(profile);
         } else {

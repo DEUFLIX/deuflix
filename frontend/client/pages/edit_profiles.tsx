@@ -15,7 +15,7 @@ type Profile = {
     pName: string;
     pImage: string | null; // 프로필 이미지 경로
     age: string;
-    password: string; // DB의 비밀번호
+    pPw: string; // DB의 비밀번호
 };
 
 interface EditProfilePageProps {
@@ -31,6 +31,7 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [passwordMatch, setPasswordMatch] = useState<boolean | null>(null); // 현재 비밀번호가 DB의 비밀번호와 일치하는지 여부
+    const [passwordError, setPasswordError] = useState<string>("");
 
     const userState = useContext(UserContext);
 
@@ -45,7 +46,7 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
 
     const checkCurrentPassword = (currentPassword: string) => {
         // DB의 비밀번호와 비교하여 일치 여부를 확인
-        const match = currentPassword === profile.password;
+        const match = currentPassword === profile.pPw;
         setPasswordMatch(match);
     };
 
@@ -77,7 +78,7 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
                     pName: pName,
                     pImage: pImage,
                     age: age,
-                    password: newPassword, // 신규 비밀번호로 업데이트
+                    pPw: newPassword, // 신규 비밀번호로 업데이트
                 },
                 {
                     headers: {
@@ -91,6 +92,26 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
         } catch (error) {
             toast.error("Failed to update profile");
             console.error("Error updating profile:", error);
+        }
+    };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setNewPassword(value);
+        if (confirmPassword && value !== confirmPassword) {
+            setPasswordError("Passwords do not match");
+        } else {
+            setPasswordError("");
+        }
+    };
+
+    const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setConfirmPassword(value);
+        if (newPassword !== value) {
+            setPasswordError("Passwords do not match");
+        } else {
+            setPasswordError("");
         }
     };
 
@@ -187,7 +208,7 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
                             type="password"
                             className="mt-1 block w-full rounded bg-gray-900 text-white px-3 py-2"
                             value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
+                            onChange={handlePasswordChange}
                             required
                         />
                     </label>
@@ -197,9 +218,15 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
                             type="password"
                             className="mt-1 block w-full rounded bg-gray-900 text-white px-3 py-2"
                             value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            onChange={handleConfirmPasswordChange}
                             required
                         />
+                        {confirmPassword && newPassword !== confirmPassword && (
+                            <p className="text-sm text-red-500">Passwords do not match</p>
+                        )}
+                        {confirmPassword && newPassword === confirmPassword && (
+                            <p className="text-sm text-green-500">Passwords match</p>
+                        )}
                     </label>
                 </div>
                 <button
@@ -236,7 +263,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
             pName: data.pname,
             pImage: data.pimage,
             age: data.age,
-            password: data.ppw,
+            pPw: data.ppw,
         };
 
         return {
