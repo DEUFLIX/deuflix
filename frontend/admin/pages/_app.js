@@ -1,10 +1,13 @@
-import { useContext, useEffect, useState } from "react";
+// pages/_app.js
+
+import { useEffect, useState } from "react";
 import Navbar from "../components/navbar/Navbar";
 import Sidebar from "../components/sidebar/Sidebar";
 import { AuthProvider } from "../context/AuthContext";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Head from "next/head";
+import { useRouter } from "next/router";
 
 import "../styles/globals.css";
 import UserRoute from "../context/routes/UserRoute";
@@ -12,6 +15,7 @@ import UserControl from "../context/routes/userControl";
 
 function MyApp({ Component, pageProps }) {
   const [showChild, setShowChild] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setShowChild(true);
@@ -21,10 +25,7 @@ function MyApp({ Component, pageProps }) {
     return null;
   }
 
-  if (typeof window === "undefined") {
-    return <></>;
-  } else {
-    return (
+  return (
       <AuthProvider>
         <UserControl>
           <Head>
@@ -45,7 +46,7 @@ function MyApp({ Component, pageProps }) {
           </div>
         </UserControl>
       </AuthProvider>
-    );
-  }
+  );
 }
+
 export default MyApp;
