@@ -43,7 +43,7 @@ public class ProfileService {
     }
 
     public ResponseEntity<ProfileDto> createProfile(ProfileCreateRequest request) {
-        Profile profile = new Profile(request.getUId(), request.getPName(), request.getPImage(), request.getAge());
+        Profile profile = new Profile(request.getUId(), request.getPName(), request.getPImage(), request.getAge(), request.getPPw());
         profile = profileRepository.save(profile);
         return new ResponseEntity<>(ProfileDto.fromEntity(profile), HttpStatus.CREATED);
     }

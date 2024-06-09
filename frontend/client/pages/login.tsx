@@ -61,7 +61,7 @@ const Login: NextPage = () => {
         />
         <div>
           <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/2560px-Netflix_2015_logo.svg.png"
+              src="https://hanggubuket.s3.ap-northeast-2.amazonaws.com/DEUFLIX.png"
               className="absolute left-4 top-4 cursor-pointer object-contain md:left-10 md:top-6"
               width={150}
               height={150}

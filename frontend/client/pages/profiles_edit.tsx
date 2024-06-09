@@ -11,6 +11,7 @@ type Profile = {
     UId: number;
     pname: string;
     pImage: string | null; // 프로필 이미지 경로
+    password: string;
 };
 
 interface ProfilesPageProps {
@@ -21,6 +22,7 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
     const router = useRouter();
     const userState = useContext(UserContext);
     const [isEditMode, setIsEditMode] = useState(false);
+    const [selectedProfileId, setSelectedProfileId] = useState<number | null>(null);
 
     const handleProfileClick = (profileId: number, profileName: string) => {
         if (!isEditMode) {
@@ -78,7 +80,7 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
             />
             <div>
                 <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/2560px-Netflix_2015_logo.svg.png/2560px-Netflix_2015_logo.svg.png"
+                    src="https://hanggubuket.s3.ap-northeast-2.amazonaws.com/DEUFLIX.png"
                     className="absolute left-4 top-4 cursor-pointer object-contain md:left-10 md:top-6"
                     width={150}
                     height={150}
@@ -87,21 +89,28 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
 
             <div className="flex flex-col items-center justify-center h-screen z-10">
                 <h1 className="text-4xl font-semibold mb-8">{isEditMode ? "수정할 프로필을 선택하세요." : "Deuflix를 실행할 프로필을 선택해주세요."}</h1>
-                <div className="flex flex-wrap justify-center items-center space-x-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                     {profiles.map((profile) => (
-                        <div key={profile.id} className="relative bg-gray-800 text-white px-4 py-2 rounded cursor-pointer flex-1 flex flex-col items-center mb-4">
+                        <div key={profile.id} className="relative flex flex-col items-center mb-4">
                             <button
                                 onClick={() => isEditMode ? handleEditProfile(profile.id) : handleProfileClick(profile.id, profile.pname)}
-                                className={`relative bg-gray-800 text-white px-4 py-2 rounded cursor-pointer z-10 flex flex-col items-center ${isEditMode ? "opacity-50 cursor-pointer" : ""}`}
+                                className={`relative text-white px-4 py-2 rounded cursor-pointer z-10 flex flex-col items-center ${isEditMode ? "opacity-50 cursor-pointer" : ""}`}
+                                onMouseEnter={() => setSelectedProfileId(profile.id)}
+                                onMouseLeave={() => setSelectedProfileId(null)}
                             >
-                                <div className="h-24 w-24 overflow-hidden">
+                                <div className="h-40 w-40 overflow-hidden  mb-2 relative">
                                     {profile.pImage ? (
-                                        <img src={profile.pImage} alt={profile.pname} className="h-full w-full object-cover" />
+                                        <img src={profile.pImage} alt={profile.pname} className="h-full w-full object-cover " />
                                     ) : (
-                                        <img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png?20201013161117" alt="Default Profile" className="h-full w-full object-cover" />
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png?20201013161117" alt="Default Profile" className="h-full w-full object-cover " />
+                                    )}
+                                    {isEditMode && selectedProfileId === profile.id && (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-30 ">
+                                            <img src="/pencil.png" alt="Edit" className="h-24 w-24" />
+                                        </div>
                                     )}
                                 </div>
-                                <span className="mt-2">{profile.pname || 'No Name'}</span>
+                                <span className="text-white mt-2">{profile.pname || 'No Name'}</span>
                             </button>
                         </div>
                     ))}
@@ -122,22 +131,16 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
                 {!isEditMode && (
                     <button
                         onClick={enterEditMode}
-                        className="relative bg-gray-800 text-white px-4 py-2 rounded cursor-pointer z-10 flex flex-col items-center mt-4"
+                        className="mt-4 px-4 py-2 border-4 border-white-600 text-white rounded cursor-pointer bg-transparent"
                     >
-                        <div className="h-24 w-24 flex items-center justify-center">
-                            <span className="text-2xl">✏️</span>
-                        </div>
                         <span className="mt-2">프로필 수정</span>
                     </button>
                 )}
                 {isEditMode && (
                     <button
                         onClick={exitEditMode}
-                        className="relative bg-gray-800 text-white px-4 py-2 rounded cursor-pointer z-10 flex flex-col items-center mt-4"
+                        className="mt-4 px-4 py-2 border-4 border-white-600 text-white rounded cursor-pointer bg-transparent"
                     >
-                        <div className="h-24 w-24 flex items-center justify-center">
-                            <span className="text-2xl">❌</span>
-                        </div>
                         <span className="mt-2">수정 취소</span>
                     </button>
                 )}
@@ -149,7 +152,7 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     try {
         const userId = query.userId as string;
-        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API}/profiles/${userId}`);
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API}/profiles/user/${userId}`);
         console.log("Profiles data:", data);
         return {
             props: {

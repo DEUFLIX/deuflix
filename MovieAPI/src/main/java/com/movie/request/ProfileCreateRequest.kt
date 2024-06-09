@@ -4,5 +4,6 @@ data class ProfileCreateRequest(
         var uId: Long,
         var pName: String,
         var pImage: String?,
-        var age: String
+        var age: String,
+        var pPw: String
 )

@@ -19,21 +19,23 @@ const UserProvider = ({ children }: UserContextProviderProps) => {
   useEffect(() => {
     const handleState = async () => {
       const storageData = await JSON.parse(
-        window.localStorage.getItem("auth") as any
+          window.localStorage.getItem("auth") as string
       );
       setState(storageData);
     };
     handleState();
   }, []);
 
-  const token = state && state.token ? "Bearer " + state.token : "";
-  axios.defaults.baseURL = process.env.NEXT_PUBLIC_API;
-  axios.defaults.headers.common["Authorization"] = token;
+  useEffect(() => {
+    const token = state && state.token ? "Bearer " + state.token : "";
+    axios.defaults.baseURL = process.env.NEXT_PUBLIC_API;
+    axios.defaults.headers.common["Authorization"] = token;
+  }, [state]);
 
   return (
-    <UserContext.Provider value={{ state, setState }}>
-      {children}
-    </UserContext.Provider>
+      <UserContext.Provider value={{ state, setState }}>
+        {children}
+      </UserContext.Provider>
   );
 };
 
