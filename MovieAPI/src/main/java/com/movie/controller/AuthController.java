@@ -64,9 +64,9 @@ public class AuthController {
             authenticationManager.authenticate(authenticationToken);
         }catch(BadCredentialsException e){
             System.out.println("Invalid detail");
-            throw new AuthException("Invalid username or Password");
+            throw new AuthException("이메일 혹은 비밀번호가 일치하지 않습니다.");
         }catch (Exception e){
-            throw new AuthException("Invalid username or Password");
+            throw new AuthException("이메일 혹은 비밀번호가 일치하지 않습니다.");
         }
 
     }
