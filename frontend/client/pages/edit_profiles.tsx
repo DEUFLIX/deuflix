@@ -1,5 +1,5 @@
 import axios from "axios";
-import { NextPage, GetServerSideProps } from "next";
+import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -132,37 +132,6 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
             </form>
         </div>
     );
-};
-
-export const getServerSideProps: GetServerSideProps = async ({ query }) => {
-    try {
-        const profileId = query.profileId as string;
-        if (!profileId) {
-            return {
-                notFound: true,
-            };
-        }
-
-        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API}/profiles/profile/${profileId}`);
-        if (!data || !data.id) {
-            return {
-                notFound: true,
-            };
-        }
-
-        return {
-            props: {
-                profile: data,
-            },
-        };
-    } catch (error) {
-        console.error("Failed to fetch profile:", error);
-        return {
-            props: {
-                profile: null,
-            },
-        };
-    }
 };
 
 export default EditProfilePage;

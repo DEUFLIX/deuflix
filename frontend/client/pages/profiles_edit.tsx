@@ -5,6 +5,8 @@ import Image from "next/image";
 import React, { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { UserContext } from "../context/UserContext";
+import Modal from 'react-modal';
+import EditProfilePage from './edit_profiles'; // 경로는 실제 경로에 맞게 조정하세요
 
 type Profile = {
     id: number;
@@ -21,6 +23,8 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
     const router = useRouter();
     const userState = useContext(UserContext);
     const [isEditMode, setIsEditMode] = useState(false);
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
 
     const handleProfileClick = (profileId: number, profileName: string) => {
         if (!isEditMode) {
@@ -37,8 +41,9 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
         }
     };
 
-    const handleEditProfile = (profileId: number) => {
-        router.push(`/edit_profiles?profileId=${profileId}`);
+    const handleEditProfile = (profile: Profile) => {
+        setSelectedProfile(profile);
+        setModalIsOpen(true);
     };
 
     const enterEditMode = () => {
@@ -47,6 +52,10 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
 
     const exitEditMode = () => {
         setIsEditMode(false);
+    };
+
+    const closeModal = () => {
+        setModalIsOpen(false);
     };
 
     useEffect(() => {
@@ -90,7 +99,7 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
                     {profiles.map((profile) => (
                         <div key={profile.id} className="flex flex-col items-center mb-4 cursor-pointer">
                             <button
-                                onClick={() => isEditMode ? handleEditProfile(profile.id) : handleProfileClick(profile.id, profile.pname)}
+                                onClick={() => isEditMode ? handleEditProfile(profile) : handleProfileClick(profile.id, profile.pname)}
                                 className="relative flex flex-col items-center"
                             >
                                 <div className={`relative h-24 w-24 overflow-hidden ${isEditMode ? 'bg-gray-800 opacity-80' : ''}`}>
@@ -122,7 +131,6 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
                 </div>
                 {!isEditMode && (
                     <button onClick={enterEditMode} className="flex flex-col items-center mt-4 cursor-pointer">
-
                         <span className="mt-4 px-4 py-2 border-4 border-white-600 text-white rounded cursor-pointer bg-transparent">프로필 수정</span>
                     </button>
                 )}
@@ -132,6 +140,49 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
                     </button>
                 )}
             </div>
+
+            <Modal
+                isOpen={modalIsOpen}
+                onRequestClose={closeModal}
+                contentLabel="Edit Profile Modal"
+                ariaHideApp={false}
+                className="Modal"
+                overlayClassName="Overlay"
+            >
+                <div className="ModalContent">
+                    {selectedProfile && <EditProfilePage profile={selectedProfile} />}
+                    <button onClick={closeModal} className="mt-4 px-4 py-2 border-4 border-black-600 text-black rounded cursor-pointer bg-transparent">Close</button>
+                </div>
+            </Modal>
+
+            <style jsx global>{`
+                .Modal {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    right: auto;
+                    bottom: auto;
+                    margin-right: -50%;
+                    transform: translate(-50%, -50%);
+                    background: transparent; /* 투명한 배경 */
+                    padding: 0;
+                    z-index: 1000;
+                }
+                .ModalContent {
+                    background: black; /* 불투명한 내부 배경 */
+                    padding: 20px;
+                    border-radius: 10px;
+                }
+                .Overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: rgba(0, 0, 0, 0.75); /* 반투명한 어두운 배경 */
+                    z-index: 999 !important;
+                }
+            `}</style>
         </div>
     );
 };
