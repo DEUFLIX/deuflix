@@ -1,4 +1,4 @@
-// Existing interface definitions
+// 기존 인터페이스 정의
 export interface Movie {
   id: number;
   title: string;
@@ -8,7 +8,7 @@ export interface Movie {
   trailer: string;
   year: Year;
   genres: Genre[];
-  movieUrl: string;
+  movieUrl: string; // 추가됨
 }
 
 export interface Series {
@@ -17,10 +17,9 @@ export interface Series {
   description: string;
   isMovie: boolean;
   thumbnailImage: string;
-  seriesImage: string;  // 추가
-  seriesUrl: string;    // 추가
-  trailer: string;      // 추가
-  trailerUrl: string;
+  seriesImage: string; // 추가됨
+  seriesUrl: string; // 추가됨
+  trailer: string; // 추가됨
   genres: Genre[];
   episodes: Episode[];
   year: Year;
@@ -61,7 +60,7 @@ export interface User {
   // 필요한 다른 속성들 추가
 }
 
-// mysql2/promise module augmentation
+// mysql2/promise 모듈 보강
 declare module 'mysql2/promise' {
   import * as mysql from 'mysql2';
 

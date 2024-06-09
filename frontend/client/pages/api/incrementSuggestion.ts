@@ -13,18 +13,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(405).json({ message: 'Method not allowed' });
     }
 
-    const { movieId } = req.body;
+    const { movieId, seriesId } = req.body;
 
-    if (!movieId) {
-        return res.status(400).json({ message: 'Missing movieId' });
+    if (!movieId && !seriesId) {
+        return res.status(400).json({ message: 'Missing movieId or seriesId' });
     }
 
     try {
         const connection = await mysql.createConnection(dbConfig);
-        const [result]: any = await connection.execute(
-            'UPDATE movie SET suggestions = suggestions + 1 WHERE id = ?',
-            [movieId]
-        );
+
+        if (movieId) {
+            await connection.execute(
+                'UPDATE movie SET suggestions = suggestions + 1 WHERE id = ?',
+                [movieId]
+            );
+        }
+
+        if (seriesId) {
+            await connection.execute(
+                'UPDATE series SET suggestions = suggestions + 1 WHERE id = ?',
+                [seriesId]
+            );
+        }
+
         await connection.end();
 
         return res.status(200).json({ message: 'Suggestion incremented' });

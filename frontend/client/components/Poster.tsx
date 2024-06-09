@@ -7,8 +7,8 @@ import AddIcon from '@mui/icons-material/Add';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import { useRouter } from "next/router";
 import { GenreContext } from "../context/GenreContext";
-import VideoPlayer from "./VideoPlayer";
 import axios from 'axios';
+import VideoModal from "./VideoModal";
 
 interface IProps {
   posterData: Movie | Series | null;
@@ -23,14 +23,16 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
   const [suggestions, setSuggestions] = useState(0);
   const [ageRestriction, setAgeRestriction] = useState(0);
   const [actors, setActors] = useState<string[]>([]);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [wasInfoOpen, setWasInfoOpen] = useState(false); // 추가: info 창 상태 저장 변수
 
   useEffect(() => {
-    console.log('Poster Data:', posterData); // 디버깅을 위해 posterData 로그 출력
+    console.log('Poster Data:', posterData);
     if (posterData && 'id' in posterData) {
       const fetchSuggestions = async () => {
         try {
           const idParam = 'movieImage' in posterData ? 'movieId' : 'seriesId';
-          const response = await axios.get(`http://localhost:8080/api/v1/getSuggestions?${idParam}=${posterData.id}`);
+          const response = await axios.get(`http://localhost:3000/api/getSuggestions?${idParam}=${posterData.id}`);
           setSuggestions(response.data.suggestions);
           setAgeRestriction(response.data.age_restriction);
           setActors(response.data.actors);
@@ -43,12 +45,17 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
     }
   }, [posterData]);
 
-  const handlePlayClick = () => {
-    setIsVideoOpen(true);
+  const isMovie = (data: Movie | Series | null): data is Movie => {
+    return !!data && 'movieUrl' in data;
   };
 
-  const handleCloseVideo = () => {
-    setIsVideoOpen(false);
+  const handlePlayClick = (url: string) => {
+    if (isInfoOpen) {
+      setWasInfoOpen(true);
+      setIsInfoOpen(false);
+    }
+    setVideoUrl(url);
+    setIsVideoOpen(true);
   };
 
   const handleInfoClick = () => {
@@ -60,28 +67,35 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
   };
 
   const handlePlayInfoClick = () => {
-    handleCloseInfo();
-    handlePlayClick();
+    if (posterData) {
+      handlePlayClick(isMovie(posterData) ? posterData.movieUrl : posterData.seriesUrl);
+    }
   };
 
   const handleAddToList = async () => {
     try {
-      const response = await axios.post('http://localhost:8080/api/v1/addToList', {
+      const payload = {
         userId: 1,
-        movieId: posterData?.id,
-      });
+        movieId: isMovie(posterData) ? posterData?.id : undefined,
+        seriesId: !isMovie(posterData) ? posterData?.id : undefined,
+      };
+
+      const response = await axios.post('http://localhost:3000/api/addToList', payload);
       alert(response.data.message);
     } catch (error) {
-      console.error('Failed to add movie to list', error);
-      alert('Failed to add movie to list');
+      console.error('Failed to add to list', error);
+      alert('Failed to add to list');
     }
   };
 
   const handleThumbUp = async () => {
     try {
-      const response = await axios.post('http://localhost:8080/api/v1/incrementSuggestion', {
-        movieId: posterData?.id,
-      });
+      const payload = {
+        movieId: isMovie(posterData) ? posterData?.id : undefined,
+        seriesId: !isMovie(posterData) ? posterData?.id : undefined,
+      };
+
+      const response = await axios.post('http://localhost:3000/api/incrementSuggestion', payload);
       alert(response.data.message);
       setSuggestions((prev) => prev + 1);
     } catch (error) {
@@ -101,7 +115,6 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
 
   const ageRestrictionIcon = getAgeRestrictionIcon();
 
-  // Ensure 'year' is a string
   const year = posterData && typeof posterData.year === 'object' ? posterData.year.year : posterData?.year?.toString();
 
   return (
@@ -139,7 +152,14 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
             {posterData?.description}
           </p>
           <div className="flex space-x-3">
-            <button className="navbarButton bg-white text-black transform hover:scale-105 transition duration-200" onClick={handlePlayClick}>
+            <button
+                className="navbarButton bg-white text-black transform hover:scale-105 transition duration-200"
+                onClick={() => {
+                  if (posterData) {
+                    handlePlayClick(isMovie(posterData) ? posterData.movieUrl : posterData.seriesUrl);
+                  }
+                }}
+            >
               <PlayArrowIcon />
               <span className="font-bold">Play</span>
             </button>
@@ -155,13 +175,6 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
             </button>
           </div>
         </div>
-        {isVideoOpen && posterData && (
-            <VideoPlayer
-                videoUrl={'movieUrl' in posterData ? (posterData as Movie).movieUrl : (posterData as Series).seriesUrl}
-                subtitlesUrl={posterData && 'trailer' in posterData ? (posterData as Movie).trailer : (posterData as Series).trailer}
-                onClose={handleCloseVideo}
-            />
-        )}
         {isInfoOpen && (
             <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
               <div className="relative w-full max-w-5xl bg-black h-3/4 rounded-lg overflow-hidden">
@@ -231,18 +244,24 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
                         <span>{year}</span>
                       </p>
                   )}
-                  {/* 시리즈의 경우 에피소드 목록 추가 */}
-                  {'episodes' in posterData && (
+                  {posterData && 'episodes' in posterData && (
                       <div className="mt-4">
-                        <h2 className="text-xl font-bold">회차:</h2>
-                        <ul>
-                          {(posterData as Series).episodes.map(episode => (
-                              <li key={episode.id} className="mt-2 flex items-start">
-                                <img src={episode.thumbnailImage} alt={`Episode ${episode.episodeNumber}`} className="w-32 h-20 mr-4 object-cover" />
-                                <div>
-                                  <h3 className="text-lg font-semibold">{episode.episodeNumber}화 {episode.title}</h3>
+                        <h2 className="text-xl font-bold">회차</h2>
+                        <ul className="space-y-4">
+                          {(posterData as Series).episodes.map((episode) => (
+                              <li key={episode.id} className="flex items-start episode-item space-y-4 border-b border-gray-700 pb-4" onClick={() => handlePlayClick(episode.url)}>
+                                <div className="episode-thumbnail w-32 h-20 mr-4 relative">
+                                  <img src={episode.thumbnailImage} alt={`Episode ${episode.title}`} className="w-full h-full object-cover rounded" />
+                                  <div className="play-icon absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                                    <PlayArrowIcon style={{ fontSize: 40 }} />
+                                  </div>
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex justify-between">
+                                    <h3 className="text-lg font-semibold">{episode.title}</h3>
+                                    <p className="text-sm text-gray-400">{episode.duration} 분</p>
+                                  </div>
                                   <p className="text-sm">{episode.description}</p>
-                                  <p className="text-sm">Duration: {episode.duration} minutes</p>
                                 </div>
                               </li>
                           ))}
@@ -252,6 +271,20 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
                 </div>
               </div>
             </div>
+        )}
+        {isVideoOpen && videoUrl && (
+            <VideoModal
+                videoUrl={videoUrl}
+                onClose={() => {
+                  setIsVideoOpen(false);
+                  if (wasInfoOpen) {
+                    setIsInfoOpen(true);
+                    setWasInfoOpen(false);
+                  }
+                }}
+                width="63%"  // 원하는 width 값
+                height="70%" // 원하는 height 값
+            />
         )}
       </div>
   );
