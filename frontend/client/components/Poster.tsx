@@ -246,19 +246,23 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
                   )}
                   {posterData && 'episodes' in posterData && (
                       <div className="mt-4">
-                        <h2 className="text-xl font-bold">회차</h2>
+                        <h2 className="text-2xl font-bold mb-6">회차</h2> {/* mb-6을 추가하여 "회차" 텍스트와 에피소드 목록 사이의 거리를 늘림 */}
                         <ul className="space-y-4">
                           {(posterData as Series).episodes.map((episode) => (
-                              <li key={episode.id} className="flex items-start episode-item space-y-4 border-b border-gray-700 pb-4" onClick={() => handlePlayClick(episode.url)}>
-                                <div className="episode-thumbnail w-32 h-20 mr-4 relative">
-                                  <img src={episode.thumbnailImage} alt={`Episode ${episode.title}`} className="w-full h-full object-cover rounded" />
-                                  <div className="play-icon absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                                    <PlayArrowIcon style={{ fontSize: 40 }} />
+                              <li key={episode.id}
+                                  className="flex items-start episode-item border-b border-gray-700 pb-2"
+                                  onClick={() => handlePlayClick(episode.url)}>
+                                <div className="episode-thumbnail w-40 h-24 mr-4 relative">
+                                  <img src={episode.thumbnailImage} alt={`Episode ${episode.title}`}
+                                       className="w-full h-full object-cover rounded"/>
+                                  <div
+                                      className="play-icon absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                                    <PlayArrowIcon style={{fontSize: 40}}/>
                                   </div>
                                 </div>
-                                <div className="flex-1">
+                                <div className="flex-1 space-y-2"> {/* 추가된 부분: space-y-2 클래스로 설명과 텍스트 사이의 거리를 늘림 */}
                                   <div className="flex justify-between">
-                                    <h3 className="text-lg font-semibold">{episode.title}</h3>
+                                    <h3 className="text-xl font-semibold">{episode.title}</h3> {/* 텍스트 크기를 text-lg에서 text-xl로 변경 */}
                                     <p className="text-sm text-gray-400">{episode.duration} 분</p>
                                   </div>
                                   <p className="text-sm">{episode.description}</p>
@@ -267,6 +271,8 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
                           ))}
                         </ul>
                       </div>
+
+
                   )}
                 </div>
               </div>
