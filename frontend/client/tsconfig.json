@@ -17,7 +17,13 @@
     "typeRoots": [
       "./node_modules/@types",
       "./types"
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["frontend/client/*"],
+      "@/components/*": ["frontend/client/components/*"],
+      "@/context/*": ["frontend/client/context/*"]
+    }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]

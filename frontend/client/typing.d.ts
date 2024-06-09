@@ -57,6 +57,7 @@ export interface User {
   name: string;
   email: string;
   token: string;
+  user_name: string;
   // 필요한 다른 속성들 추가
 }
 
