@@ -97,10 +97,10 @@ const Viewage = () => {
                         </div>
                         <div className="flex justify-between mb-4">
                             <span className={styles.ratingBox}>전체관람가</span>
-                            <span className={styles.ratingBox}>7</span>
-                            <span className={styles.ratingBox}>12</span>
-                            <span className={styles.ratingBox}>16</span>
-                            <span className={styles.ratingBox}>18</span>
+                            <span className={styles.ratingBox}>7+</span>
+                            <span className={styles.ratingBox}>12+</span>
+                            <span className={styles.ratingBox}>16+</span>
+                            <span className={styles.ratingBox}>18+</span>
                         </div>
                         <div className="flex justify-center">
                             <button onClick={saveRating} className="bg-blue-500 text-white px-4 py-2 rounded mr-2">

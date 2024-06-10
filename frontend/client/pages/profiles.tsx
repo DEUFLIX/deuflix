@@ -110,7 +110,7 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
 export const getServerSideProps: GetServerSideProps = async ({query}) => {
     try {
         const userId = query.userId as string;
-        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API}/profiles/user/${userId}`);
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API}/v1/profiles/user/${userId}`);
         console.log("Profiles data:", data);
         return {
             props: {

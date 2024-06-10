@@ -100,7 +100,7 @@ const Login: NextPage = () => {
         userState?.setState({ ...data });
 
         window.localStorage.setItem("auth", JSON.stringify(data));
-        router.push("/");
+        router.push(`/profiles?userId=${data.id}`);
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {

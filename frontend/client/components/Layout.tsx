@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children, sidebarItems }) => {
             const userId = window.localStorage.getItem('selectedUserId'); // userId를 localStorage에서 읽어옴
             if (profileId) {
                 try {
-                    const response = await axios.get(`${process.env.NEXT_PUBLIC_API}/profiles/profile/${profileId}/image`);
+                    const response = await axios.get(`${process.env.NEXT_PUBLIC_API}/v1/profiles/profile/${profileId}/image`);
                     const imageUrl = response.data;
                     setProfileImage(imageUrl);
                 } catch (error) {

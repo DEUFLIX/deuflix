@@ -30,7 +30,7 @@ const Membership = () => {
     }, [userId]);
 
     const sidebarItems = [
-        { text: '넷플릭스로 돌아가기', icon: faArrowLeft, link: '/login' },
+        { text: '넷플릭스로 돌아가기', icon: faArrowLeft, link: '/' },
         { text: '계정', icon: faHouse, link: '/account/account' },
         { text: '멤버십', icon: faExchangeAlt, link: '/account/membership' },
         { text: '보안', icon: faShieldAlt, link: '/account/security' },

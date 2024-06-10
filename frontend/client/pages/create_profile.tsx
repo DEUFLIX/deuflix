@@ -30,7 +30,7 @@ const CreateProfile: NextPage = () => {
 
         try {
             const { data } = await axios.post(
-                `${process.env.NEXT_PUBLIC_API}/profiles/insert`,
+                `${process.env.NEXT_PUBLIC_API}/v1/profiles/insert`,
                 {
                     uId: userState.state.id,
                     pName: profileName,
