@@ -1,6 +1,6 @@
-import axios from "axios";
-import React, { useState, createContext, useEffect } from "react";
-import { User } from "../typing";
+import axios from 'axios';
+import React, { useState, createContext, useContext, useEffect } from 'react';
+import { User } from '../typing';
 
 export type CurrentUser = {
   state: User | null;
@@ -12,6 +12,14 @@ type UserContextProviderProps = {
 };
 
 const UserContext = createContext<CurrentUser | null>(null);
+
+export const useUser = () => {
+  const context = useContext(UserContext);
+  if (!context) {
+    throw new Error("useUser must be used within a UserProvider");
+  }
+  return context;
+};
 
 const UserProvider = ({ children }: UserContextProviderProps) => {
   const [state, setState] = useState<User | null>(null);

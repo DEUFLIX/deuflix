@@ -10,7 +10,6 @@ import org.mockito.Mockito;
 
 import static org.mockito.Mockito.verify;
 
-
 class GenreServiceTest {
 
     private GenreService genreService;
@@ -24,28 +23,23 @@ class GenreServiceTest {
     }
 
     @Test
-    void getAllGenre(){
-
-        //when
-        genreService.getAlGenre();
-        //then
+    void getAllGenre() {
+        // when
+        genreService.getAllGenres();
+        // then
         verify(genreRepository).findAll();
     }
 
     @Test
-    public void whenCreateGenreCalledWithValidRequestItShouldReturnGenreDto(){
-        GenreRequest request = new GenreRequest(1, "Action");
-        Genre genre = new Genre(request.getId(),request.getGenre());
+    public void whenCreateGenreCalledWithValidRequestItShouldReturnGenreDto() {
+        GenreRequest request = new GenreRequest(1, "Action", "Movie");
+        Genre genre = new Genre(request.getId(), request.getGenre(), request.getType());
 
         Mockito.when(genreRepository.save(genre)).thenReturn(genre);
 
         GenreRequest result = genreService.createGenre(request);
-        Assertions.assertEquals(result,request);
+        Assertions.assertEquals(result, request);
 
         verify(genreRepository).save(genre);
     }
-
-
-
-
 }

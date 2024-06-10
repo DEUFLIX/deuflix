@@ -1,5 +1,6 @@
 package com.movie.controller;
 
+
 import com.movie.dto.UserDto;
 import com.movie.exception.AuthException;
 import com.movie.request.JwtAuthRequest;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
@@ -49,35 +51,33 @@ public class AuthController {
                 user.getId(),
                 user.getEmail(),
                 user.getName(),
-                token, userDetails
+                token,userDetails
                 .getAuthorities().stream()
-                .anyMatch(i -> i.getAuthority().equals("ROLE_ADMIN"))
+                .anyMatch(i->i.getAuthority().equals("ROLE_ADMIN"))
         );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     private void authenticate(String username, String password) throws Exception {
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
-        try {
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,password);
+        try{
             authenticationManager.authenticate(authenticationToken);
-        } catch (BadCredentialsException e) {
+        }catch(BadCredentialsException e){
             System.out.println("Invalid detail");
-            // 다음 두 줄 중 하나를 선택하여 사용합니다.
-            throw new AuthException("Invalid username or Password");
-            // throw new AuthException("잘못된 아이디 또는 비밀번호 입니다.");
-        } catch (Exception e) {
-            throw new AuthException("Invalid username or Password");
+            throw new AuthException("이메일 혹은 비밀번호가 일치하지 않습니다.");
+        }catch (Exception e){
+            throw new AuthException("이메일 혹은 비밀번호가 일치하지 않습니다.");
         }
+
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@Valid @RequestBody UserRegisterRequest request) {
-        userService.registerNewUser(request);
+    public ResponseEntity<Void> register(@Valid @RequestBody UserRegisterRequest request){
+       userService.registerNewUser(request);
         return ResponseEntity.ok().build();
     }
-
     @GetMapping("/current")
-    public UserDetails getUser(Principal principal) {
-        return this.userDetailsService.loadUserByUsername(principal.getName());
+    public UserDetails getUser(Principal principal){
+        return  this.userDetailsService.loadUserByUsername(principal.getName());
     }
 }

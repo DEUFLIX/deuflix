@@ -8,12 +8,12 @@ import { UserContext } from "../context/UserContext";
 import { Movie, User } from "../typing";
 
 export interface IUser extends User {
-  movies: [Movie];
+  movies: Movie[];
 }
 
 const UserList: NextPage = () => {
   const userState = useContext(UserContext);
-  const [movies, setMovies] = useState<[Movie] | null>(null);
+  const [movies, setMovies] = useState<Movie[] | null>(null);
   const [control, setControl] = useState(0);
   let id: number = userState?.state?.id as number;
 
@@ -34,20 +34,20 @@ const UserList: NextPage = () => {
     }
   };
   return (
-    <>
-      <Head>
-        <title>NetFlix-My-List</title>
-      </Head>
-      <Navbar />{" "}
-      <div className=" flex flex-col ml-[2%] mt-[10%] z-20 w-[50%] gap-5">
-        <h1 className="gap-x-3 font-bold text-2xl gap-y-3">My-List</h1>
-        <div className="flex gap-x-5 gap-y-5">
-          {movies?.map(a => (
-            <Item item={a} setControl={setControl} />
-          ))}
+      <>
+        <Head>
+          <title>NetFlix-My-List</title>
+        </Head>
+        <Navbar />{" "}
+        <div className="flex flex-col ml-[2%] mt-[10%] z-20 w-[50%] gap-5">
+          <h1 className="gap-x-3 font-bold text-2xl gap-y-3">My-List</h1>
+          <div className="flex gap-x-5 gap-y-5">
+            {movies?.map((a) => (
+                <Item key={a.id} item={a} setControl={setControl} />
+            ))}
+          </div>
         </div>
-      </div>
-    </>
+      </>
   );
 };
 

@@ -1,33 +1,32 @@
 package com.movie.dto
 
-
 import com.movie.model.Genre
 import com.movie.model.Movie
 
 data class MovieDto(
-        val id:Long?,
-        val title: String,
-        val description: String,
+        val id: Long?,
+        val title: String?,
+        val description: String?,
         val movieImage: String?,
-        val movieUrl: String,
-        val trailer: String,
+        val movieUrl: String?,
+        val trailer: String?,
         val year: Int,
-        val genres: Set<Genre>?= HashSet(),
-        val isMovie: Boolean?=true,
-){
-    companion object{
+        val genres: Set<Genre>?,
+        val isMovie: Boolean?
+) {
+    companion object {
         @JvmStatic
-        fun convert(from: Movie): MovieDto{
+        fun convert(movie: Movie): MovieDto {
             return MovieDto(
-                    from.id,
-                    from.title,
-                    from.description,
-                    from.movieImage,
-                    from.movieUrl,
-                    from.trailer,
-                    from.year?.year ?: 1995,
-                    from.genres,
-                    from.isMovie
+                    movie.id,
+                    movie.title,
+                    movie.description,
+                    movie.movieImage,
+                    movie.movieUrl,
+                    movie.trailer,
+                    movie.year?.year ?: 1995,
+                    movie.genres,
+                    movie.isMovie
             )
         }
     }

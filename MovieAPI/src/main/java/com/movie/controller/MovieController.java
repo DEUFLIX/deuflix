@@ -5,28 +5,26 @@ import com.movie.request.MovieRequest;
 import com.movie.request.MovieUpdateRequest;
 import com.movie.service.MovieService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import javax.validation.Valid;
 import java.util.List;
-
 
 @RestController
 @RequestMapping("/api/v1/movies")
 public class MovieController {
     private final MovieService movieService;
-
-
+    private static final Logger logger = LoggerFactory.getLogger(MovieController.class);
 
     public MovieController(MovieService movieService) {
         this.movieService = movieService;
     }
-
 
     //Get All Movies
     @Operation(summary = "Get All Movies")
@@ -56,7 +54,15 @@ public class MovieController {
     @Operation(summary = "Get ;Random One Movie")
     @GetMapping("/random")
     public ResponseEntity<MovieDto> getRandomOneMovie(@RequestParam(required = false , value= "type") String type){
-        return  ResponseEntity.ok(this.movieService.getRandomOneMovie(type));
+        logger.info("Received request to fetch random movie of type: {}", type);
+        try {
+            MovieDto movieDto = this.movieService.getRandomOneMovie(type);
+            logger.info("Returning random movie: {}", movieDto);
+            return ResponseEntity.ok(movieDto);
+        } catch (Exception e) {
+            logger.error("Error fetching random movie", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     // Get Movie By Genre ID
@@ -73,9 +79,7 @@ public class MovieController {
         return ResponseEntity.ok(this.movieService.getAllMoviesByGenre(genre));
     }
 
-
     // Create Movie
-
     @Operation(summary = "Create Movie ")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
@@ -106,8 +110,6 @@ public class MovieController {
         return ResponseEntity.ok(this.movieService.searchMovieByKeyword(keyword));
     }
 
-
-
     @PostMapping("/file/upload/{movieId}")
     public ResponseEntity<MovieDto> uploadPostImage(@PathVariable Long movieId,
                                                     @RequestParam("file") MultipartFile file) {
@@ -118,9 +120,4 @@ public class MovieController {
     public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
         return ResponseEntity.ok(this.movieService.imgUpload(file));
     }
-
-
 }
-
-
-

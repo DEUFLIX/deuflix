@@ -5,7 +5,8 @@ const nextConfig = {
     domains: ['assets.nflxext.com'],
   },
   env: {
-    NEXT_PUBLIC_API: process.env.NEXT_PUBLIC_API,
+    NEXT_PUBLIC_API: 'http://localhost:8080/api',
+    NEXT_PUBLIC_NODE_API: 'http://localhost:8081/api',
   },
   async rewrites() {
     return [
