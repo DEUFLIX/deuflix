@@ -1,0 +1,95 @@
+package com.movie.service;
+
+import com.movie.dto.ProfileDto;
+import com.movie.model.Profile;
+import com.movie.repository.ProfileRepository;
+import com.movie.request.ProfileAgeUpdateRequest;
+import com.movie.request.ProfileCreateRequest;
+import com.movie.request.ProfileUpdateRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional
+public class ProfileService {
+
+    @Autowired
+    private ProfileRepository profileRepository;
+
+    public List<ProfileDto> getAllProfiles() {
+        List<Profile> profiles = profileRepository.findAll();
+        return profiles.stream()
+                .map(ProfileDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProfileDto> getProfilesByUId(Long uId) {
+        List<Profile> profiles = profileRepository.findByUId(uId);
+        return profiles.stream()
+                .map(ProfileDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    public ResponseEntity<ProfileDto> getProfileById(Integer id) {
+        Optional<Profile> profile = profileRepository.findById(id);
+        return profile.map(p -> ResponseEntity.ok(ProfileDto.fromEntity(p)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    public ResponseEntity<ProfileDto> createProfile(ProfileCreateRequest request) {
+        Profile profile = new Profile(request.getUId(), request.getPName(), request.getPImage(), request.getAge(), request.getPPw());
+        profile = profileRepository.save(profile);
+        return new ResponseEntity<>(ProfileDto.fromEntity(profile), HttpStatus.CREATED);
+    }
+
+    public ProfileDto updateProfile(int profileId, ProfileUpdateRequest request) {
+        Optional<Profile> optionalProfile = profileRepository.findById(profileId);
+        if (optionalProfile.isPresent()) {
+            Profile profile = optionalProfile.get();
+            profile.setPName(request.getPName());
+            profile.setPImage(request.getPImage());
+            profile.setAge(request.getAge());
+            profile.setPPw(request.getPPw()); // setPw 메서드 추가
+            profile = profileRepository.save(profile);
+            return ProfileDto.fromEntity(profile);
+        } else {
+            return null;
+        }
+    }
+
+    public ResponseEntity<String> getpImageByid(Integer id) {
+        Optional<Profile> profile = profileRepository.findById(id);
+        if (profile.isPresent()) {
+            String imageUrl = profile.get().getPImage();
+            return ResponseEntity.ok(imageUrl);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    public ProfileDto updateProfileAge(Integer id, ProfileAgeUpdateRequest request) {
+        Profile profile = profileRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Profile not found"));
+
+        profile.setAge(request.getAge());
+        Profile updatedProfile = profileRepository.save(profile);
+
+        return ProfileDto.fromEntity(updatedProfile);
+    }
+
+    public boolean deleteProfile(Integer id) {
+        try {
+            profileRepository.deleteById(id);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+}

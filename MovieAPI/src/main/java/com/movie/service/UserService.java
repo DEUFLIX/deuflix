@@ -18,13 +18,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.http.ResponseEntity;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
     private final PasswordEncoder passwordEncoder;
-
     private final RoleRepository roleRepository;
 
     public UserService(UserRepository userRepository,
@@ -36,7 +36,6 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
     }
-
 
     public List<UserDto> getAllUsers(Boolean newUsers) {
         if (newUsers) {
@@ -51,7 +50,6 @@ public class UserService {
         User user = this.userRepository.findUserByEmail(email);
         return UserDto.convert(user);
     }
-
 
     public UserDto getUserById(Long id) {
         return UserDto.convert(this.findUserByID(id));
@@ -73,19 +71,17 @@ public class UserService {
         this.userRepository.save(user);
     }
 
-
-    //Create User
+    // Create User
     public UserDto createUser(UserCreateRequest request) {
         Optional<User> findUser = this.userRepository.findByEmail(request.getEmail());
         if (findUser.isPresent())
             throw new AuthException("This user already exist");
-        User user = new User
-                (
-                        null,
-                        request.getName(),
-                        request.getEmail(),
-                        passwordEncoder.encode(request.getPassword())
-                );
+        User user = new User(
+                null,
+                request.getName(),
+                request.getEmail(),
+                passwordEncoder.encode(request.getPassword())
+        );
         Role role = userRole(Objects.requireNonNull(request.isAdmin()));
         user.getRoles().add(role);
         this.userRepository.save(user);
@@ -107,7 +103,7 @@ public class UserService {
         this.userRepository.save(updateOne);
     }
 
-    //Delete User
+    // Delete User
     public void deleteUser(Long id) {
         this.userRepository.delete(this.findUserByID(id));
     }
@@ -136,11 +132,22 @@ public class UserService {
         return UserDto.convert(user);
     }
 
+    // Get email by user ID
+    public ResponseEntity<String> getEmailById(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            String email = user.get().getEmail();
+            return ResponseEntity.ok(email);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     private Role userRole(Boolean isAdmin) {
         Role role;
         if (isAdmin) {
             role = roleRepository.findById(1)
-                    .orElseThrow(() -> new ResourceNotFoundException("Role is  not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Role is not found"));
         } else {
             role = roleRepository.findById(2)
                     .orElseThrow(() -> new ResourceNotFoundException("Role is not found"));
@@ -148,10 +155,9 @@ public class UserService {
         return role;
     }
 
-
     private User findUserByID(Long id) {
         return this.userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User is  not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User is not found"));
     }
 
 
