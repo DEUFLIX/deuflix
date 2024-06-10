@@ -83,4 +83,13 @@ public class ProfileService {
 
         return ProfileDto.fromEntity(updatedProfile);
     }
+
+    public boolean deleteProfile(Integer id) {
+        try {
+            profileRepository.deleteById(id);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

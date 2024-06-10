@@ -58,6 +58,7 @@ const Viewage = () => {
                 }
             );
             alert('저장되었습니다.');
+            router.push('/account/account');
         } catch (error) {
             console.error('Error saving rating:', error);
             alert('저장에 실패했습니다.');

@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/api/v1/profiles")
 public class ProfileController {
 
-    
+
     public ProfileController(ProfileService profileService) {
         this.profileService = profileService;
     }
@@ -67,6 +67,16 @@ public class ProfileController {
             return new ResponseEntity<>(updatedProfile, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/profile/{id}")
+    public ResponseEntity<Void> deleteProfile(@PathVariable Integer id) {
+        boolean isDeleted = profileService.deleteProfile(id);
+        if (isDeleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 }

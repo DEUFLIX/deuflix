@@ -22,6 +22,11 @@ const Settings = () => {
         router.push(`/account/viewage?userId=${userId}&profileId=${profileId}`);
     };
 
+    const handleProfileDeleteClick = () => {
+        // 프로필 삭제 페이지로 이동할 때 userId와 profileId를 쿼리 파라미터로 전달
+        router.push(`/account/profiledel?userId=${userId}&profileId=${profileId}`);
+    };
+
     return (
         <Layout sidebarItems={sidebarItems}>
             <h1 className={`${styles.text3xl} font-bold mb-8`}>프로필 설정</h1>
@@ -48,7 +53,7 @@ const Settings = () => {
                     </div>
                     <FontAwesomeIcon icon={faChevronRight} />
                 </div>
-                <div className={`${styles.quickLinkItem} flex items-center justify-between cursor-pointer`}>
+                <div className={`${styles.quickLinkItem} flex items-center justify-between cursor-pointer`} onClick={handleProfileDeleteClick}>
                     <div className="flex items-center">
                         <FontAwesomeIcon icon={faTrashAlt} className={`${styles.quickLinkItemI} mr-2`} />
                         <span className={styles.quickLinkItemSpan}>프로필 삭제</span>
