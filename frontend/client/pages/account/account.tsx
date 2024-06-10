@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../../components/Layout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse, faExchangeAlt, faShieldAlt, faUser, faCreditCard, faLock, faChild, faCog, faChevronRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faHouse, faExchangeAlt, faShieldAlt, faCreditCard, faLock, faChild, faCog, faChevronRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import styles from '../../styles/shared.module.css';
+
+interface Profile {
+    id: number;
+    pname: string;
+    pimage: string;
+    // 다른 필요한 속성들 추가
+}
 
 const Account = () => {
     const router = useRouter();
     const { userId, profileId } = router.query;
     const [email, setEmail] = useState<string | null>(null);
-    const [profiles, setProfiles] = useState([]);
+    const [profiles, setProfiles] = useState<Profile[]>([]);
 
     useEffect(() => {
         const fetchEmail = async () => {
@@ -30,7 +37,7 @@ const Account = () => {
             if (userId) {
                 try {
                     console.log('Fetching profiles for userId:', userId);
-                    const response = await axios.get(`http://localhost:8080/api/v1/profiles/${userId}`);
+                    const response = await axios.get(`http://localhost:8080/api/v1/profiles/user/${userId}`);
                     console.log('Profiles response:', response);
                     setProfiles(response.data);
                 } catch (error) {
@@ -123,7 +130,7 @@ const Account = () => {
                     {profiles.map(profile => (
                         <div key={profile.id} className="text-center cursor-pointer"
                              onClick={() => handleProfileClick(profile.id)}>
-                        <img src={profile.pimage} alt={profile.pname} className={styles.profileIconsImg} />
+                            <img src={profile.pimage} alt={profile.pname} className={styles.profileIconsImg} />
                             <p>{profile.pname}</p>
                         </div>
                     ))}

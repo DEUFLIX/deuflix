@@ -7,6 +7,8 @@ import styles from '../../styles/shared.module.css';
 
 const Settings = () => {
     const router = useRouter();
+    const { userId, profileId } = router.query;  // 현재 URL에서 쿼리 파라미터 추출
+
     const sidebarItems = [
         { text: '이전 페이지', icon: faArrowLeft, link: '/account/account' },
     ];
@@ -16,7 +18,8 @@ const Settings = () => {
     };
 
     const handleViewingRestrictionsClick = () => {
-        router.push('/account/viewage');
+        // 시청 제한 페이지로 이동할 때 userId와 profileId를 쿼리 파라미터로 전달
+        router.push(`/account/viewage?userId=${userId}&profileId=${profileId}`);
     };
 
     return (

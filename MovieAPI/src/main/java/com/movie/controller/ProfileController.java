@@ -1,5 +1,9 @@
 package com.movie.controller;
 
+import com.movie.request.ProfileAgeUpdateRequest;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import com.movie.dto.ProfileDto;
 import com.movie.request.ProfileCreateRequest;
 import com.movie.request.ProfileUpdateRequest;
@@ -7,13 +11,17 @@ import com.movie.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.Map;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/profiles")
 public class ProfileController {
 
+    
+    public ProfileController(ProfileService profileService) {
+        this.profileService = profileService;
+    }
     @Autowired
     private ProfileService profileService;
 
@@ -50,5 +58,15 @@ public class ProfileController {
     @GetMapping("/profile/{id}/image")
     public ResponseEntity<String> getpImageByid(@PathVariable Integer id) {
         return profileService.getpImageByid(id);
+    }
+
+    @PutMapping("/update-age/{id}")
+    public ResponseEntity<ProfileDto> updateProfileAge(@PathVariable Integer id, @RequestBody ProfileAgeUpdateRequest request) {
+        ProfileDto updatedProfile = profileService.updateProfileAge(id, request);
+        if (updatedProfile != null) {
+            return new ResponseEntity<>(updatedProfile, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

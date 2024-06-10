@@ -1,13 +1,34 @@
 // pages/account/membership.tsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../../components/Layout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExchangeAlt, faShieldAlt, faUser, faChevronRight, faArrowLeft, faHouse } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/router';
+import axios from 'axios';
 import styles from '../../styles/shared.module.css';
 
 const Membership = () => {
     const router = useRouter();
+    const { userId } = router.query;
+    const [email, setEmail] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchEmail = async () => {
+            if (userId) {
+                try {
+                    console.log('Fetching email for userId:', userId);
+                    const response = await axios.get(`http://localhost:8080/api/v1/users/${userId}/email`);
+                    console.log('Email response:', response);
+                    setEmail(response.data);
+                } catch (error) {
+                    console.error('Failed to fetch email:', error);
+                }
+            }
+        };
+
+        fetchEmail();
+    }, [userId]);
+
     const sidebarItems = [
         { text: '넷플릭스로 돌아가기', icon: faArrowLeft, link: '/login' },
         { text: '계정', icon: faHouse, link: '/account/account' },
@@ -30,7 +51,7 @@ const Membership = () => {
                 <h2 className="text-xl font-semibold mb-4">결제 정보</h2>
                 <div className="p-4 border rounded-lg bg-gray-50 mb-4">
                     <p className="mb-2">다음 결제일: 2024년 6월 20일</p>
-                    <p className="mb-2">계정: user@example.com</p>
+                    <p className="mb-2">계정: {email || 'loading...'}</p>
                     <p className="mb-2">LG U+ •••• •••• •8140</p>
                 </div>
                 <div className="p-4 border rounded-lg bg-gray-50 mb-4">

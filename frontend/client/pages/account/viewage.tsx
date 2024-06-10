@@ -1,9 +1,68 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import axios from 'axios';
 import styles from '../../styles/shared.module.css';
 
 const Viewage = () => {
     const router = useRouter();
+    const { userId, profileId } = router.query;
+    const [rating, setRating] = useState("4");
+
+    const getRatingMessage = () => {
+        switch (rating) {
+            case "4":
+                return '이 프로필에서는 모든 관람등급의 콘텐츠가 표시됩니다.';
+            case "3":
+                return '이 프로필에서는 18세 미만의 콘텐츠가 표시됩니다.';
+            case "2":
+                return '이 프로필에서는 16세 미만의 콘텐츠가 표시됩니다.';
+            case "1":
+                return '이 프로필에서는 12세 미만의 콘텐츠가 표시됩니다.';
+            case "0":
+                return '이 프로필에서는 전체관람등급의 콘텐츠가 표시됩니다.';
+            default:
+                return '이 프로필에서는 모든 관람등급의 콘텐츠가 표시됩니다.';
+        }
+    };
+
+    // @ts-ignore
+    const getActualRating = (rating) => {
+        switch (rating) {
+            case "4":
+                return "18";
+            case "3":
+                return "16";
+            case "2":
+                return "12";
+            case "1":
+                return "7";
+            case "0":
+                return "0";
+            default:
+                return "18";
+        }
+    };
+
+    const saveRating = async () => {
+        const actualRating = getActualRating(rating);
+        try {
+            const data = { age: actualRating };
+            console.log('Request Data:', data);
+            await axios.put(
+                `http://localhost:8080/api/v1/profiles/update-age/${profileId}`,
+                data,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }
+            );
+            alert('저장되었습니다.');
+        } catch (error) {
+            console.error('Error saving rating:', error);
+            alert('저장에 실패했습니다.');
+        }
+    };
 
     return (
         <div className={styles.body}>
@@ -23,26 +82,27 @@ const Viewage = () => {
                     <section className={`${styles.section} mb-8 p-4 border rounded-lg`}>
                         <h2 className="text-2xl font-semibold mb-4 text-center">임시 프로필의 관람등급</h2>
                         <p className="mb-4 text-center">
-                            이 프로필에서는 모든 관람등급의 콘텐츠가 표시됩니다.
+                            {getRatingMessage()}
                         </p>
                         <div className="flex items-center mb-4 justify-center">
                             <input
                                 type="range"
                                 min="0"
                                 max="4"
-                                defaultValue="4"
+                                value={rating}
+                                onChange={(e) => setRating(e.target.value)}
                                 className="flex-grow"
                             />
                         </div>
                         <div className="flex justify-between mb-4">
                             <span className={styles.ratingBox}>전체관람가</span>
-                            <span className={styles.ratingBox}>7+</span>
-                            <span className={styles.ratingBox}>12+</span>
-                            <span className={styles.ratingBox}>16+</span>
-                            <span className={styles.ratingBox}>18+</span>
+                            <span className={styles.ratingBox}>7</span>
+                            <span className={styles.ratingBox}>12</span>
+                            <span className={styles.ratingBox}>16</span>
+                            <span className={styles.ratingBox}>18</span>
                         </div>
                         <div className="flex justify-center">
-                            <button className="bg-blue-500 text-white px-4 py-2 rounded mr-2">
+                            <button onClick={saveRating} className="bg-blue-500 text-white px-4 py-2 rounded mr-2">
                                 저장
                             </button>
                             <button

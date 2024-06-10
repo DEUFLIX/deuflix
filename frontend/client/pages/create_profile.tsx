@@ -11,6 +11,8 @@ const CreateProfile: NextPage = () => {
     const [profileName, setProfileName] = useState("");
     const [profileImage, setProfileImage] = useState("");
     const [age, setAge] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const userState = useContext(UserContext);
     const router = useRouter();
 
@@ -18,6 +20,11 @@ const CreateProfile: NextPage = () => {
         e.preventDefault();
         if (!userState || !userState.state || !userState.state.id) {
             toast.error("User is not logged in");
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            toast.error("Passwords do not match");
             return;
         }
 
@@ -29,6 +36,7 @@ const CreateProfile: NextPage = () => {
                     pName: profileName,
                     pImage: profileImage,
                     age: age,
+                    pPw: password,
                 },
                 {
                     headers: {
@@ -50,6 +58,16 @@ const CreateProfile: NextPage = () => {
                 toast.error("Something went wrong");
             }
         }
+    };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setPassword(value);
+    };
+
+    const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setConfirmPassword(value);
     };
 
     return (
@@ -106,6 +124,36 @@ const CreateProfile: NextPage = () => {
                             onChange={(e) => setAge(e.target.value)}
                             required
                         />
+                    </label>
+                    <label className="block text-white">
+                        Password
+                        <input
+                            type="password"
+                            className="mt-1 block w-full rounded bg-gray-900 text-white px-3 py-2"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </label>
+                    <label className="block text-white">
+                        Confirm Password
+                        <input
+                            type="password"
+                            className="mt-1 block w-full rounded bg-gray-900 text-white px-3 py-2"
+                            value={confirmPassword}
+                            onChange={handleConfirmPasswordChange}
+                            required
+                        />
+                        {(password !== "" || confirmPassword !== "") && (
+                            <>
+                                {password !== confirmPassword ? (
+                                    <p className="text-sm text-red-500">Passwords do not match</p>
+                                ) : (
+                                    <p className="text-sm text-green-500">Passwords match</p>
+                                )}
+                            </>
+                        )}
+
                     </label>
                 </div>
                 <button

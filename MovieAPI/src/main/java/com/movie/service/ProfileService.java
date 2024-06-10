@@ -3,6 +3,7 @@ package com.movie.service;
 import com.movie.dto.ProfileDto;
 import com.movie.model.Profile;
 import com.movie.repository.ProfileRepository;
+import com.movie.request.ProfileAgeUpdateRequest;
 import com.movie.request.ProfileCreateRequest;
 import com.movie.request.ProfileUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,5 +72,15 @@ public class ProfileService {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    public ProfileDto updateProfileAge(Integer id, ProfileAgeUpdateRequest request) {
+        Profile profile = profileRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Profile not found"));
+
+        profile.setAge(request.getAge());
+        Profile updatedProfile = profileRepository.save(profile);
+
+        return ProfileDto.fromEntity(updatedProfile);
     }
 }
