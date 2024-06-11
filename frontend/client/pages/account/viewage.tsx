@@ -58,7 +58,10 @@ const Viewage = () => {
                 }
             );
             alert('저장되었습니다.');
-            router.push('/account/account');
+            router.push({
+                pathname: '/account/account',
+                query: { userId, profileId }
+            });
         } catch (error) {
             console.error('Error saving rating:', error);
             alert('저장에 실패했습니다.');
@@ -108,7 +111,10 @@ const Viewage = () => {
                             </button>
                             <button
                                 className="bg-gray-300 text-black px-4 py-2 rounded"
-                                onClick={() => router.push('settings')}
+                                onClick={() => router.push({
+                                    pathname: '/account/account',
+                                    query: { userId, profileId }
+                                })}
                             >
                                 취소
                             </button>

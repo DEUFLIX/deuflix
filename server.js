@@ -138,7 +138,7 @@ app.post('/api/create-payment', async (req, res) => {
 app.post('/api/verify-payment', async (req, res) => {
     const { imp_uid, merchant_uid, userId, membershipType } = req.body;
 
-    console.log('Request body:', req.body);
+    console.log('Request body:', req.body); // 요청 본문 출력
 
     try {
         const getToken = await axios.post('https://api.iamport.kr/users/getToken', {
@@ -152,7 +152,7 @@ app.post('/api/verify-payment', async (req, res) => {
         });
 
         const paymentData = paymentVerify.data.response;
-        console.log('Payment data:', paymentData);
+        console.log('Payment data:', paymentData); // 결제 데이터 출력
 
         const query = 'SELECT amount, user_id FROM payments WHERE merchant_uid = ?';
         db.query(query, [merchant_uid], (err, results) => {

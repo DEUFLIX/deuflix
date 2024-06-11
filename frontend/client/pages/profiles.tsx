@@ -78,7 +78,7 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
                         <div key={profile.id} className="relative flex flex-col items-center mb-4">
                             <button onClick={() => handleProfileClick(profile.id, profile.pname)} className="flex flex-col items-center">
                                 <div className="h-40 w-40 overflow-hidden  mb-2">
-                                    {profile.pImage ? (<img src={profile.pImage} alt={profile.pname} className="h-full w-full object-cover " />) : (<img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png?20201013161117" alt="Default Profile" className="h-full w-full object-cover " />)}
+                                    {profile.pimage ? (<img src={profile.pimage} alt={profile.pname} className="h-full w-full object-cover " />) : (<img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png?20201013161117" alt="Default Profile" className="h-full w-full object-cover " />)}
                                 </div>
                                 <span className="text-white text-lg font-medium">{profile.pname || 'No Name'}</span>
                             </button>

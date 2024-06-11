@@ -18,6 +18,8 @@ const Account = () => {
     const { userId, profileId } = router.query;
     const [email, setEmail] = useState<string | null>(null);
     const [profiles, setProfiles] = useState<Profile[]>([]);
+    const [startDate, setStartDate] = useState<string | null>(null);
+    const [endDate, setEndDate] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchEmail = async () => {
@@ -46,52 +48,65 @@ const Account = () => {
             }
         };
 
+        const fetchMembershipDetails = async () => {
+            if (userId) {
+                try {
+                    console.log('Fetching membership details for userId:', userId);
+                    const response = await axios.get(`http://localhost:8080/api/v1/memberships/user/${userId}`);
+                    console.log('Membership response:', response);
+                    setStartDate(response.data.startDate);
+                    setEndDate(response.data.endDate);
+                } catch (error) {
+                    console.error('Failed to fetch membership details:', error);
+                }
+            }
+        };
+
         fetchEmail();
         fetchProfiles();
+        fetchMembershipDetails();
     }, [userId]);
 
     const sidebarItems = [
         { text: '넷플릭스로 돌아가기', icon: faArrowLeft, link: '/' },
-        { text: '계정', icon: faHouse, link: '/account/account' },
-        { text: '멤버십', icon: faExchangeAlt, link: '/account/membership' },
-        { text: '보안', icon: faShieldAlt, link: '/account/security' },
+        { text: '계정', icon: faHouse, link: `/account/account?userId=${userId}&profileId=${profileId}` },
+        { text: '멤버십', icon: faExchangeAlt, link: `/account/membership?userId=${userId}&profileId=${profileId}` },
+        { text: '보안', icon: faShieldAlt, link: `/account/security?userId=${userId}&profileId=${profileId}` },
     ];
 
     const handleNavigation = (link: string) => {
-        router.push({
-            pathname: link,
-            query: { userId, profileId }
-        });
+        router.push(link);
     };
 
     const handleProfileClick = (profileId: number) => {
         router.push({
             pathname: '/edit_profiles',
-            query: { profileId }
+            query: { userId, profileId }
         });
     };
 
     return (
-        <Layout sidebarItems={sidebarItems.map(item => ({ ...item, link: `${item.link}` }))}>
+        <Layout sidebarItems={sidebarItems}>
             <h1 className={`${styles.text3xl} font-bold mb-8`}>계정</h1>
             <section className={`${styles.accountOverview} mb-8 p-4 border rounded-lg`}>
                 <h2 className={`${styles.accountOverviewH2} mb-4`}>멤버십 정보</h2>
-                <p>멤버십 시작: 2023년 6월</p>
-                <p>다음 결제일: 2024년 6월 4일</p>
+                <p>멤버십 시작: {startDate ? new Date(startDate).toLocaleDateString() : 'loading...'}</p>
+                <p>다음 결제일: {endDate ? new Date(endDate).toLocaleDateString() : 'loading...'}</p>
                 <p>계정: {email}</p>
-                <button className="text-blue-500 hover:underline" onClick={() => handleNavigation('/account/membership')}>멤버십 관리</button>
+                <button className="text-blue-500 hover:underline" onClick={() => handleNavigation(`/account/membership?userId=${userId}&profileId=${profileId}`)}>멤버십 관리</button>
             </section>
             <section className={`${styles.quickLinks} p-4 border rounded-lg`}>
                 <h2 className={`${styles.quickLinksH2} mb-4`}>빠른 링크</h2>
                 <div className={`${styles.quickLinkItem} flex items-center justify-between cursor-pointer`}
-                     onClick={() => handleNavigation('/account/membership')}>
+                     onClick={() => handleNavigation(`/account/membership?userId=${userId}&profileId=${profileId}`)}>
                     <div className="flex items-center">
                         <FontAwesomeIcon icon={faExchangeAlt} className={`${styles.quickLinkItemI} mr-2`}/>
                         <span className={`${styles.quickLinkItemSpan} ${styles.cursorPointer}`}>멤버십 변경</span>
                     </div>
                     <FontAwesomeIcon icon={faChevronRight}/>
                 </div>
-                <div className={`${styles.quickLinkItem} flex items-center justify-between cursor-pointer`}>
+                <div className={`${styles.quickLinkItem} flex items-center justify-between cursor-pointer`}
+                     onClick={() => handleNavigation(`/Step4?userId=${userId}&profileId=${profileId}`)}>
                     <div className="flex items-center">
                         <FontAwesomeIcon icon={faCreditCard} className={`${styles.quickLinkItemI} mr-2`}/>
                         <span className={`${styles.quickLinkItemSpan} ${styles.cursorPointer}`}>결제 수단 관리</span>
@@ -99,7 +114,7 @@ const Account = () => {
                     <FontAwesomeIcon icon={faChevronRight}/>
                 </div>
                 <div className={`${styles.quickLinkItem} flex items-center justify-between cursor-pointer`}
-                     onClick={() => handleNavigation('/account/password')}>
+                     onClick={() => handleNavigation(`/account/password?userId=${userId}&profileId=${profileId}`)}>
                     <div className="flex items-center">
                         <FontAwesomeIcon icon={faLock} className={`${styles.quickLinkItemI} mr-2`}/>
                         <span className={`${styles.quickLinkItemSpan} ${styles.cursorPointer}`}>비밀번호 업데이트</span>
@@ -108,7 +123,7 @@ const Account = () => {
                 </div>
 
                 <div className={`${styles.quickLinkItem} flex items-center justify-between cursor-pointer`}
-                     onClick={() => handleNavigation('/account/viewage')}>
+                     onClick={() => handleNavigation(`/account/viewage?userId=${userId}&profileId=${profileId}`)}>
                     <div className="flex items-center">
                         <FontAwesomeIcon icon={faChild} className={`${styles.quickLinkItemI} mr-2`}/>
                         <span className={`${styles.quickLinkItemSpan} ${styles.cursorPointer}`}>자녀 보호 설정 조정</span>
@@ -116,7 +131,7 @@ const Account = () => {
                     <FontAwesomeIcon icon={faChevronRight}/>
                 </div>
                 <div className={`${styles.quickLinkItem} flex items-center justify-between cursor-pointer`}
-                     onClick={() => handleNavigation('/account/settings')}>
+                     onClick={() => handleNavigation(`/account/settings?userId=${userId}&profileId=${profileId}`)}>
                     <div className="flex items-center">
                         <FontAwesomeIcon icon={faCog} className={`${styles.quickLinkItemI} mr-2`}/>
                         <span className={`${styles.quickLinkItemSpan} ${styles.cursorPointer}`}>설정 변경</span>

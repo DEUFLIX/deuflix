@@ -8,7 +8,7 @@ import styles from '../../styles/shared.module.css';
 
 const Security = () => {
     const router = useRouter();
-    const { userId } = router.query;
+    const { userId, profileId } = router.query;
     const [email, setEmail] = useState<string | null>(null);
 
     useEffect(() => {
@@ -30,13 +30,13 @@ const Security = () => {
 
     const sidebarItems = [
         { text: '넷플릭스로 돌아가기', icon: faArrowLeft, link: '/' },
-        { text: '계정', icon: faHouse, link: `/account/account?userId=${userId}` },
-        { text: '멤버십', icon: faExchangeAlt, link: `/account/membership?userId=${userId}` },
-        { text: '보안', icon: faShieldAlt, link: `/account/security?userId=${userId}` },
+        { text: '계정', icon: faHouse, link: `/account/account?userId=${userId}&profileId=${profileId}` },
+        { text: '멤버십', icon: faExchangeAlt, link: `/account/membership?userId=${userId}&profileId=${profileId}` },
+        { text: '보안', icon: faShieldAlt, link: `/account/security?userId=${userId}&profileId=${profileId}` },
     ];
 
     const handlePasswordClick = () => {
-        router.push(`/account/password?userId=${userId}`);
+        router.push(`/account/password?userId=${userId}&profileId=${profileId}`);
     };
 
     return (
