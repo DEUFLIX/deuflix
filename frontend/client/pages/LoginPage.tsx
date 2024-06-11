@@ -73,7 +73,7 @@ const LoginPage: React.FC = () => {
                         다음
                     </button>
                     <div className="mt-4 text-center">
-                        <a href="#" className="text-blue-600">비밀번호를 잊으셨나요?</a>
+                        <a href="/account/password" className="text-blue-600">비밀번호를 잊으셨나요?</a>
                     </div>
                 </div>
             </div>

@@ -91,7 +91,8 @@ const Account = () => {
                     </div>
                     <FontAwesomeIcon icon={faChevronRight}/>
                 </div>
-                <div className={`${styles.quickLinkItem} flex items-center justify-between cursor-pointer`}>
+                <div className={`${styles.quickLinkItem} flex items-center justify-between cursor-pointer`}
+                     onClick={() => handleNavigation('/Step4')}>
                     <div className="flex items-center">
                         <FontAwesomeIcon icon={faCreditCard} className={`${styles.quickLinkItemI} mr-2`}/>
                         <span className={`${styles.quickLinkItemSpan} ${styles.cursorPointer}`}>결제 수단 관리</span>

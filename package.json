@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "bootstrap": "^5.3.3"
+    "aws-sdk": "^2.1637.0",
+    "bootstrap": "^5.3.3",
+    "cors": "^2.8.5"
   }
 }

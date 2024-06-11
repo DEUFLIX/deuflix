@@ -9,11 +9,18 @@ const IMP_KEY = '1782823374086270';
 const IMP_SECRET = 'awxZk8x4xrccPnFhmxJ7U7vjbOuh16tJ6TRfLmDHv4xVHFKTA6T8HgrXxSDkf51k59mljgL1OuMWOLq2';
 
 const app = express();
-app.use(bodyParser.json());
-app.use(cors({
-    origin: 'http://localhost:3000',
+
+const corsOptions = {
+    origin: 'http://localhost:3001',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
-}));
+    optionsSuccessStatus: 204,
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
+
+app.use(bodyParser.json());
 
 const db = mysql.createConnection({
     host: '127.0.0.1',
@@ -29,6 +36,8 @@ db.connect(err => {
     }
     console.log('Database connected!');
 });
+
+app.options('*', cors(corsOptions)); // Preflight 요청에 대한 응답
 
 app.post('/api/auth/register', async (req, res) => {
     const { email, password } = req.body;
@@ -138,7 +147,7 @@ app.post('/api/create-payment', async (req, res) => {
 app.post('/api/verify-payment', async (req, res) => {
     const { imp_uid, merchant_uid, userId, membershipType } = req.body;
 
-    console.log('Request body:', req.body);
+    console.log('Request body:', req.body); // 요청 본문 출력
 
     try {
         const getToken = await axios.post('https://api.iamport.kr/users/getToken', {
@@ -152,7 +161,7 @@ app.post('/api/verify-payment', async (req, res) => {
         });
 
         const paymentData = paymentVerify.data.response;
-        console.log('Payment data:', paymentData);
+        console.log('Payment data:', paymentData); // 결제 데이터 출력
 
         const query = 'SELECT amount, user_id FROM payments WHERE merchant_uid = ?';
         db.query(query, [merchant_uid], (err, results) => {
@@ -211,7 +220,6 @@ app.post('/api/save-payment', (req, res) => {
     });
 });
 
-const port = 8081; // 포트를 8081로 변경
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+app.listen(8081, () => {
+    console.log('Server running on port 8081');
 });

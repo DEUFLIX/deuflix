@@ -1,3 +1,4 @@
+//profiles.tsx
 import axios from "axios";
 import { NextPage, GetServerSideProps } from "next";
 import Head from "next/head";
@@ -63,12 +64,14 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
                 objectFit="cover"
             />
             <div>
-                <img
-                    src="https://hanggubuket.s3.ap-northeast-2.amazonaws.com/DEUFLIX.png"
-                    className="absolute left-4 top-4 cursor-pointer object-contain md:left-10 md:top-6"
-                    width={150}
-                    height={150}
-                />
+                <a href="http://localhost:3000">
+                    <img
+                        src="/netflix-logo.png"
+                        className="absolute left-4 top-4 cursor-pointer object-contain md:left-10 md:top-6"
+                        width={150}
+                        height={150}
+                    />
+                </a>
             </div>
 
             <div className="flex flex-col items-center justify-center h-screen z-10">
@@ -78,7 +81,7 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
                         <div key={profile.id} className="relative flex flex-col items-center mb-4">
                             <button onClick={() => handleProfileClick(profile.id, profile.pname)} className="flex flex-col items-center">
                                 <div className="h-40 w-40 overflow-hidden  mb-2">
-                                    {profile.pImage ? (<img src={profile.pImage} alt={profile.pname} className="h-full w-full object-cover " />) : (<img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png?20201013161117" alt="Default Profile" className="h-full w-full object-cover " />)}
+                                    {profile.pimage ? (<img src={profile.pimage} alt={profile.pname} className="h-full w-full object-cover " />) : (<img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png?20201013161117" alt="Default Profile" className="h-full w-full object-cover " />)}
                                 </div>
                                 <span className="text-white text-lg font-medium">{profile.pname || 'No Name'}</span>
                             </button>

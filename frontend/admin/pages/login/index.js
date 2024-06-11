@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
 import { toast } from "react-toastify";
+
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -12,6 +13,7 @@ export default function Login() {
   const router = useRouter();
 
   useEffect(() => {}, []);
+
   const handleLogin = async e => {
     e.preventDefault();
 
@@ -19,10 +21,13 @@ export default function Login() {
       const { data } = await axios.post(`/auth/login`, {
         username: username,
         password: password,
+      },{
+        withCredentials: true, // CORS 자격 증명 설정
+
       });
 
       if (!data.isAdmin) {
-        toast.error("You are not a admin");
+        toast.error("You are not an admin");
       } else {
         setState({ ...data });
 
@@ -32,37 +37,38 @@ export default function Login() {
       }
     } catch (err) {
       console.log(err);
-      toast.error(err.response.data.message);
+      const errorMessage = err.response?.data?.message || 'Network Error';
+      toast.error(errorMessage);
     }
   };
 
   if (state) router.push("/");
   return (
-    <div className={styles.login}>
-      <form className={styles.loginForm}>
-        <div className={styles.loginCont}>
-          <h3>
-            email: admin@gmail.com
-            <br />
-            password: admin6287
-          </h3>
-        </div>
-        <input
-          type="text"
-          placeholder="email"
-          className="loginInput"
-          onChange={e => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="password"
-          className="loginInput"
-          onChange={e => setPassword(e.target.value)}
-        />
-        <button className={styles.loginButton} onClick={handleLogin}>
-          Login
-        </button>
-      </form>
-    </div>
+      <div className={styles.login}>
+        <form className={styles.loginForm}>
+          <div className={styles.loginCont}>
+            <h3>
+              email: admin@gmail.com
+              <br />
+              password: admin6287
+            </h3>
+          </div>
+          <input
+              type="text"
+              placeholder="email"
+              className="loginInput"
+              onChange={e => setUsername(e.target.value)}
+          />
+          <input
+              type="password"
+              placeholder="password"
+              className="loginInput"
+              onChange={e => setPassword(e.target.value)}
+          />
+          <button className={styles.loginButton} onClick={handleLogin}>
+            Login
+          </button>
+        </form>
+      </div>
   );
 }

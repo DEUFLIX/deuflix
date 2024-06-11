@@ -1,3 +1,4 @@
+//login.tsx
 import axios from "axios";
 import { NextPage } from "next";
 import Head from "next/head";
@@ -100,11 +101,16 @@ const Login: NextPage = () => {
         userState?.setState({ ...data });
 
         window.localStorage.setItem("auth", JSON.stringify(data));
-        router.push(`/profiles?userId=${data.id}`);
+
+        if (data.isAdmin) {
+          window.location.href = `http://localhost:3001/`; // 관리자인 경우 리다이렉트
+        } else {
+          router.push(`/profiles?userId=${data.id}`);
+        }
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data.message);
+        toast.error(error.response?.data.message || "Network Error");
       } else {
         toast.error("Something went wrong");
       }
@@ -195,9 +201,9 @@ const Login: NextPage = () => {
                         className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500"
                     >
                       {showPassword ? (
-                          <img src="/eye-off.svg" className="h-6 w-6" alt="Hide"/>
+                          <img src="/eye-off.svg" className="h-6 w-6" alt="Hide" />
                       ) : (
-                          <img src="/eye.svg" className="h-6 w-6" alt="Show"/>
+                          <img src="/eye.svg" className="h-6 w-6" alt="Show" />
                       )}
                     </button>
                 )}
@@ -227,7 +233,7 @@ const Login: NextPage = () => {
               로그인
             </button>
             <div className="mt-4 text-center">
-              <a href="#" className="text-white-600 hover:underline">
+              <a href="/account/password" className="text-white-600 hover:underline">
                 비밀번호를 잊으셨나요?
               </a>
             </div>

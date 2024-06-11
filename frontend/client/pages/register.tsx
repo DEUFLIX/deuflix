@@ -29,7 +29,11 @@ const Register: NextPage = () => {
     try {
       const email = emailRef.current?.value || '';
       console.log('Checking email:', email);
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_NODE_API}/check-email?email=${email}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_NODE_API}/api/check-email`, {
+        params: {
+          email: email
+        }
+      });
       console.log('Email check response:', response.data);
       return response.data.exists;
     } catch (error) {

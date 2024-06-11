@@ -1,21 +1,26 @@
-// components/EditProfilePage.tsx
-
+//edit_profiles.tsx
 import axios from "axios";
 import { NextPage, GetServerSideProps } from "next";
 import Head from "next/head";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { UserContext } from "../context/UserContext";
-import Image from "next/image";
+import AWS from "aws-sdk";
+
+const AWS_ACCESS_KEY_ID = "AKIA6ODU2RE7DOSJZJHM" || "";
+const AWS_SECRET_ACCESS_KEY = "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" || "";
+const AWS_REGION = "ap-northeast-2" || "";
+const AWS_BUCKET_NAME = "hanggubuket" || "";
 
 type Profile = {
     id: number;
     UId: number;
     pName: string;
-    pImage: string | null; // 프로필 이미지 경로
+    pImage: string | null;
     age: string;
-    pPw: string; // DB의 비밀번호
+    pPw: string;
 };
 
 interface EditProfilePageProps {
@@ -25,18 +30,26 @@ interface EditProfilePageProps {
 const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
     const router = useRouter();
     const [pName, setPName] = useState("");
-    const [pImage, setPImage] = useState("");
+    const [pImage, setPImage] = useState<string | ArrayBuffer | null>(null);
     const [age, setAge] = useState("");
     const [password, setPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [passwordMatch, setPasswordMatch] = useState<boolean | null>(null); // 현재 비밀번호가 DB의 비밀번호와 일치하는지 여부
+    const [passwordMatch, setPasswordMatch] = useState<boolean | null>(null);
     const [passwordError, setPasswordError] = useState<string>("");
+    const [file, setFile] = useState<File | null>(null);
 
     const userState = useContext(UserContext);
 
+    const s3 = new AWS.S3({
+        accessKeyId: "AKIA6ODU2RE7DOSJZJHM",
+        secretAccessKey: "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",
+        region: "ap-northeast-2",
+    });
+
+    console.log("AWS_BUCKET_NAME:", AWS_BUCKET_NAME); // 버킷 이름을 확인하기 위한 로그
+
     useEffect(() => {
-        console.log("Profile data:", profile);
         if (profile) {
             setPName(profile.pName);
             setPImage(profile.pImage || "");
@@ -45,9 +58,31 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
     }, [profile]);
 
     const checkCurrentPassword = (currentPassword: string) => {
-        // DB의 비밀번호와 비교하여 일치 여부를 확인
         const match = currentPassword === profile.pPw;
         setPasswordMatch(match);
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setFile(file);
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                setPImage(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const uploadImage = async (file: File): Promise<AWS.S3.ManagedUpload.SendData> => {
+        const params: AWS.S3.PutObjectRequest = {
+            Bucket: AWS_BUCKET_NAME,
+            Key: `profile-images/${Date.now()}_${Math.random()}.jpg`,
+            Body: file,
+            ContentType: file.type,
+        };
+        return s3.upload(params).promise();
     };
 
     const handleUpdateProfile = async (e: React.SyntheticEvent) => {
@@ -70,15 +105,27 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
             return;
         }
 
+        let pImageUrl = profile.pImage;
+        if (file) {
+            try {
+                const imageData = await uploadImage(file);
+                pImageUrl = imageData.Location;
+            } catch (error) {
+                toast.error("Failed to upload image");
+                console.error("Error uploading image:", error);
+                return;
+            }
+        }
+
         try {
-            const { data } = await axios.put(
-                `${process.env.NEXT_PUBLIC_API}/profiles/update/${profile.id}`,
+            await axios.put(
+                `${process.env.NEXT_PUBLIC_API}/v1/profiles/update/${profile.id}`,
                 {
                     id: profile.id,
                     pName: pName,
-                    pImage: pImage,
+                    pImage: pImageUrl,
                     age: age,
-                    pPw: newPassword, // 신규 비밀번호로 업데이트
+                    pPw: newPassword,
                 },
                 {
                     headers: {
@@ -92,6 +139,30 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
         } catch (error) {
             toast.error("Failed to update profile");
             console.error("Error updating profile:", error);
+        }
+    };
+
+    const handleDeleteProfile = async () => {
+        if (!profile.id) {
+            toast.error("Invalid profile ID");
+            return;
+        }
+
+        try {
+            await axios.delete(
+                `${process.env.NEXT_PUBLIC_API}/v1/profiles/profile/${profile.id}`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                }
+            );
+            toast.success("Profile deleted successfully");
+            router.push(`/profiles?userId=${userState?.state?.id}`);
+        } catch (error) {
+            toast.error("Failed to delete profile");
+            console.error("Error deleting profile:", error);
         }
     };
 
@@ -116,7 +187,6 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
     };
 
     if (!profile) {
-        // 프로필 데이터가 없는 경우
         return (
             <div>
                 <p>프로필을 찾을 수 없습니다.</p>
@@ -147,10 +217,10 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
                 onSubmit={handleUpdateProfile}
                 className="relative mt-20 space-y-8 rounded bg-black/75 py-10 px-6 md:mt-0 md:max-w-md md:px-14"
             >
-                <h1 className="text-4xl font-semibold dev">프로필 수정</h1>
+                <h1 className="text-4xl font-semibold">프로필 수정</h1>
                 <div className="space-y-4">
                     <label className="block text-white">
-                        Profile Name
+                        프로필 이름
                         <input
                             type="text"
                             className="mt-1 block w-full rounded bg-gray-900 text-white px-3 py-2"
@@ -161,17 +231,23 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
                         />
                     </label>
                     <label className="block text-white">
-                        Profile Image URL
+                        프로필 이미지 (선택사항)
                         <input
-                            type="text"
+                            type="file"
+                            accept="image/*"
                             className="mt-1 block w-full rounded bg-gray-900 text-white px-3 py-2"
-                            value={pImage}
-                            placeholder={profile.pImage || ""}
-                            onChange={(e) => setPImage(e.target.value)}
+                            onChange={handleFileChange}
                         />
+                        {pImage && (
+                            <img
+                                src={typeof pImage === "string" ? pImage : URL.createObjectURL(new Blob([pImage]))}
+                                className="mt-2 rounded-lg shadow-md"
+                                width={150}
+                            />
+                        )}
                     </label>
                     <label className="block text-white">
-                        Age
+                        연령제한
                         <select
                             className="mt-1 block w-full rounded bg-gray-900 text-white px-3 py-2"
                             value={age}
@@ -185,7 +261,7 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
                         </select>
                     </label>
                     <label className="block text-white">
-                        Current Password
+                        현재 비밀번호
                         <input
                             type="password"
                             className="mt-1 block w-full rounded bg-gray-900 text-white px-3 py-2"
@@ -203,7 +279,7 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
                         )}
                     </label>
                     <label className="block text-white">
-                        New Password
+                        새 비밀번호
                         <input
                             type="password"
                             className="mt-1 block w-full rounded bg-gray-900 text-white px-3 py-2"
@@ -213,7 +289,7 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
                         />
                     </label>
                     <label className="block text-white">
-                        Confirm New Password
+                        새 비밀번호 확인
                         <input
                             type="password"
                             className="mt-1 block w-full rounded bg-gray-900 text-white px-3 py-2"
@@ -229,12 +305,23 @@ const EditProfilePage: NextPage<EditProfilePageProps> = ({ profile }) => {
                         )}
                     </label>
                 </div>
-                <button
-                    type="submit"
-                    className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded mt-4"
-                >
-                    Update Profile
-                </button>
+                <div className="flex space-x-4">
+                    <button
+                        type="submit"
+                        className="border-2 border-blue-600 text-white hover:bg-blue-600 hover:text-white py-2 px-4 rounded mt-4"
+                        style={{ backgroundColor: "transparent" }}
+                    >
+                        프로필 수정
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleDeleteProfile}
+                        className="border-2 border-red-600 text-white hover:bg-red-600 hover:text-white py-2 px-4 rounded mt-4"
+                        style={{ backgroundColor: "transparent" }}
+                    >
+                        프로필 삭제
+                    </button>
+                </div>
             </form>
         </div>
     );
@@ -249,7 +336,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
             };
         }
 
-        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API}/profiles/profile/${profileId}`);
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API}/v1/profiles/profile/${profileId}`);
         if (!data || !data.id) {
             return {
                 notFound: true,
