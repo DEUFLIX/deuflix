@@ -241,7 +241,7 @@ const Login: NextPage = () => {
               <span>로그인 정보 저장</span>
             </label>
             <div className="text-[gray] mt-4 text-center">
-              Netflix 회원이 아닌가요?{" "}
+              Deuflix 회원이 아닌가요?{" "}
               <Link href="/register">
                 <a className="cursor-pointer text-white hover:underline">
                   지금가입하세요.

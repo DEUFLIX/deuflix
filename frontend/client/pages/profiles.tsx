@@ -1,3 +1,4 @@
+
 import axios from "axios";
 import { NextPage, GetServerSideProps } from "next";
 import Head from "next/head";
@@ -63,12 +64,14 @@ const ProfilesPage: NextPage<ProfilesPageProps> = ({ profiles }) => {
                 objectFit="cover"
             />
             <div>
-                <img
-                    src="https://hanggubuket.s3.ap-northeast-2.amazonaws.com/DEUFLIX.png"
-                    className="absolute left-4 top-4 cursor-pointer object-contain md:left-10 md:top-6"
-                    width={150}
-                    height={150}
-                />
+                <a href="http://localhost:3000">
+                    <img
+                        src="/netflix-logo.png"
+                        className="absolute left-4 top-4 cursor-pointer object-contain md:left-10 md:top-6"
+                        width={150}
+                        height={150}
+                    />
+                </a>
             </div>
 
             <div className="flex flex-col items-center justify-center h-screen z-10">

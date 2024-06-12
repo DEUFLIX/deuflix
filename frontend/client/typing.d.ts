@@ -12,6 +12,8 @@ export interface Movie {
 }
 
 export interface Series {
+  suggestions: ReactNode;
+  seriesTitle: string | undefined;
   id: number;
   title: string;
   description: string;

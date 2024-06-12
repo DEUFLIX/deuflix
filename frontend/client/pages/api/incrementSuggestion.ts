@@ -38,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         await connection.end();
 
-        return res.status(200).json({ message: 'Suggestion incremented' });
+        return res.status(200).json({ message: '개추' });
     } catch (error: any) {
         console.error('Database error:', error);
         return res.status(500).json({ message: 'Internal server error' });

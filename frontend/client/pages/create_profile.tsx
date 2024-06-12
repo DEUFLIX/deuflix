@@ -6,15 +6,27 @@ import { useRouter } from "next/router";
 import React, { useContext, useState } from "react";
 import { toast } from "react-toastify";
 import { UserContext } from "../context/UserContext";
+import AWS from "aws-sdk";
+
+const AWS_ACCESS_KEY_ID = "AKIA6ODU2RE7DOSJZJHM" || "";
+const AWS_SECRET_ACCESS_KEY = "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" || "";
+const AWS_REGION = "ap-northeast-2" || "";
+const AWS_BUCKET_NAME = "hanggubuket" || "";
 
 const CreateProfile: NextPage = () => {
     const [profileName, setProfileName] = useState("");
-    const [profileImage, setProfileImage] = useState("");
+    const [profileImage, setProfileImage] = useState<File | null>(null);
     const [age, setAge] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const userState = useContext(UserContext);
     const router = useRouter();
+
+    const s3 = new AWS.S3({
+        accessKeyId: AWS_ACCESS_KEY_ID,
+        secretAccessKey: AWS_SECRET_ACCESS_KEY,
+        region: AWS_REGION,
+    });
 
     const submitHandler = async (e: React.SyntheticEvent) => {
         e.preventDefault();
@@ -29,12 +41,18 @@ const CreateProfile: NextPage = () => {
         }
 
         try {
+            let imageUrl = "";
+            if (profileImage) {
+                const imageData = await uploadImage(profileImage);
+                imageUrl = imageData.Location;
+            }
+
             const { data } = await axios.post(
                 `${process.env.NEXT_PUBLIC_API}/v1/profiles/insert`,
                 {
                     uId: userState.state.id,
                     pName: profileName,
-                    pImage: profileImage,
+                    pImage: imageUrl,
                     age: age,
                     pPw: password,
                 },
@@ -48,6 +66,7 @@ const CreateProfile: NextPage = () => {
             toast.success("Profile created successfully");
             router.push(`/profiles?userId=${userState.state.id}`);
         } catch (error) {
+            console.error(error);
             if (axios.isAxiosError(error)) {
                 if (error.response?.status === 400) {
                     toast.error(error.response.data.message);
@@ -61,17 +80,32 @@ const CreateProfile: NextPage = () => {
     };
 
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setPassword(value);
+        setPassword(e.target.value);
     };
 
-    const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setConfirmPassword(value);
+    const handleConfirmPasswordChange = (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        setConfirmPassword(e.target.value);
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] || null;
+        setProfileImage(file);
+    };
+
+    const uploadImage = async (file: File): Promise<AWS.S3.ManagedUpload.SendData> => {
+        const params: AWS.S3.PutObjectRequest = {
+            Bucket: AWS_BUCKET_NAME,
+            Key: `profile-images/${Date.now()}_${Math.random()}.jpg`,
+            Body: file,
+            ContentType: file.type,
+        };
+        return s3.upload(params).promise();
     };
 
     return (
-        <div className="relative flex h-screen w-screen flex-col md:items-center md:justify-center md:bg-transparent" style={{ userSelect: 'none' }}>
+        <div className="relative flex h-screen w-screen flex-col md:items-center md:justify-center md:bg-transparent">
             <Head>
                 <title>Create Profile</title>
             </Head>
@@ -82,12 +116,14 @@ const CreateProfile: NextPage = () => {
                 objectFit="cover"
             />
             <div>
-                <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/2560px-Netflix_2015_logo.svg.png"
-                    className="absolute left-4 top-4 cursor-pointer object-contain md:left-10 md:top-6"
-                    width={150}
-                    height={150}
-                />
+                <a href="http://localhost:3000">
+                    <img
+                        src="/netflix-logo.png"
+                        className="absolute left-4 top-4 cursor-pointer object-contain md:left-10 md:top-6"
+                        width={150}
+                        height={150}
+                    />
+                </a>
             </div>
 
             <form
@@ -107,13 +143,20 @@ const CreateProfile: NextPage = () => {
                         />
                     </label>
                     <label className="block text-white">
-                        Profile Image URL (Optional)
+                        Profile Image (Optional)
                         <input
-                            type="text"
+                            type="file"
+                            accept="image/*"
                             className="mt-1 block w-full rounded bg-gray-900 text-white px-3 py-2"
-                            value={profileImage}
-                            onChange={(e) => setProfileImage(e.target.value)}
+                            onChange={handleFileChange}
                         />
+                        {profileImage && (
+                            <img
+                                src={URL.createObjectURL(profileImage)}
+                                className="mt-2 rounded-lg shadow-md"
+                                width={150}
+                            />
+                        )}
                     </label>
                     <label className="block text-white">
                         Age
@@ -131,7 +174,7 @@ const CreateProfile: NextPage = () => {
                             type="password"
                             className="mt-1 block w-full rounded bg-gray-900 text-white px-3 py-2"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={handlePasswordChange}
                             required
                         />
                     </label>
@@ -153,7 +196,6 @@ const CreateProfile: NextPage = () => {
                                 )}
                             </>
                         )}
-
                     </label>
                 </div>
                 <button

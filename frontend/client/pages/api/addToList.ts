@@ -38,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         await connection.end();
 
-        return res.status(200).json({ message: movieId ? 'Movie added to list' : 'Series added to list' });
+        return res.status(200).json({ message: movieId ? 'MyList에 추가 되었습니다.' : 'Series added to list' });
     } catch (error: any) {
         console.error('Database error:', error);
         if (error.code === 'ER_DUP_ENTRY') {

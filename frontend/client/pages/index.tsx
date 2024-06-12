@@ -8,14 +8,16 @@ import { Genre, List, Movie, Series } from "../typing";
 import { GenreContext } from "../context/GenreContext";
 import Lists from "../components/Lists";
 import { UserContext } from "../context/UserContext";
+import MovieList from '../components/MovieList'; // MovieList 컴포넌트 추가
 
 interface IProps {
-  posterData: Movie | Series | null;
+  initialPosterData: Movie | Series | null;
   genreList: Genre[];
   error?: string;
 }
 
-const Home = ({ posterData, genreList, error }: IProps) => {
+const Home = ({ initialPosterData, genreList, error }: IProps) => {
+  const [posterData, setPosterData] = useState<Movie | Series | null>(initialPosterData);
   const [liste, setListe] = useState<List[]>([]);
   const currentGenre = useContext(GenreContext);
   const router = useRouter();
@@ -61,15 +63,55 @@ const Home = ({ posterData, genreList, error }: IProps) => {
     );
   }
 
+  const fetchRandomMovie = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/v1/movies/random?type=movies');
+      setPosterData(response.data);
+      console.log("randomMovieResponse:", response.data);
+    } catch (error) {
+      console.error('Failed to fetch random movie data', error);
+    }
+  };
+
+  const fetchRandomSeries = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/v1/series/random');
+      setPosterData(response.data);
+      console.log("randomSeriesResponse:", response.data);
+    } catch (error) {
+      console.error('Failed to fetch random series data', error);
+    }
+  };
+
+  const fetchRandomHome = async () => {
+    try {
+      const [randomMovieResponse, randomSeriesResponse] = await Promise.all([
+        axios.get('http://localhost:8080/api/v1/movies/random?type=movies'),
+        axios.get('http://localhost:8080/api/v1/series/random')
+      ]);
+
+      const isMovie = Math.random() < 0.5;
+      const selectedData = isMovie ? randomMovieResponse.data : randomSeriesResponse.data;
+      setPosterData(selectedData);
+
+      console.log("randomMovieResponse:", randomMovieResponse.data);
+      console.log("randomSeriesResponse:", randomSeriesResponse.data);
+    } catch (error) {
+      console.error('Failed to fetch random home data', error);
+    }
+  };
+
   return (
       <div className="relative h-screen bg-gradient-to-b from-gray-900/10 to-[#010511] lg:h-[95vh]">
         <Head>
           <title>NetFlix{currentType === "" ? "" : "-" + currentType}</title>
         </Head>
-        <Navbar />
+        <Navbar onHomeClick={fetchRandomHome} onMoviesClick={fetchRandomMovie} onSeriesClick={fetchRandomSeries} />
         <main className="relative pb-10 pl-4 lg:pl-10">
           <Poster posterData={posterData} genreList={genreList} />
           <section className="md:space-y-10 mt-12">
+            <MovieList /> {/* MovieList 컴포넌트 추가 */}
+            {/* 추가적인 카테고리 리스트 */}
             {liste && liste.map((l) => <Lists key={l.id} list={l} />)}
           </section>
         </main>
@@ -109,17 +151,12 @@ export const getServerSideProps = async () => {
     const randomSeries = await randomSeriesResponse.json();
     const genreList = await genreListResponse.json();
 
-    // Log the data
-    console.log("Random movie data:", randomMovie);
-    console.log("Random series data:", randomSeries);
-    console.log("Genre list data:", genreList);
-
     const isMovie = Math.random() < 0.5;
     const selectedData = isMovie ? randomMovie : randomSeries;
 
     return {
       props: {
-        posterData: selectedData,
+        initialPosterData: selectedData,
         genreList,
       },
     };
@@ -127,7 +164,7 @@ export const getServerSideProps = async () => {
     console.error("Error fetching data:", error.message);
     return {
       props: {
-        posterData: null,
+        initialPosterData: null,
         genreList: [],
         error: error.message,
       },

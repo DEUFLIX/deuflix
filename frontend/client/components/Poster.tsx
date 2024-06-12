@@ -13,18 +13,21 @@ import VideoModal from "./VideoModal";
 interface IProps {
   posterData: Movie | Series | null;
   genreList: Genre[];
+  isInfoOpen?: boolean;
+  onCloseInfo?: () => void;
+  isModal?: boolean; // 모달 여부 추가
 }
 
-const Poster = ({ posterData, genreList = [] }: IProps) => {
+const Poster = ({ posterData, genreList = [], isInfoOpen: externalIsInfoOpen = false, onCloseInfo: externalOnCloseInfo, isModal = false }: IProps) => {
   const router = useRouter().asPath;
   const currentGenre = useContext(GenreContext);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(externalIsInfoOpen);
   const [suggestions, setSuggestions] = useState(0);
   const [ageRestriction, setAgeRestriction] = useState(0);
   const [actors, setActors] = useState<string[]>([]);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [wasInfoOpen, setWasInfoOpen] = useState(false); // 추가: info 창 상태 저장 변수
+  const [wasInfoOpen, setWasInfoOpen] = useState(false);
 
   useEffect(() => {
     console.log('Poster Data:', posterData);
@@ -45,6 +48,10 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
     }
   }, [posterData]);
 
+  useEffect(() => {
+    setIsInfoOpen(externalIsInfoOpen);
+  }, [externalIsInfoOpen]);
+
   const isMovie = (data: Movie | Series | null): data is Movie => {
     return !!data && 'movieUrl' in data;
   };
@@ -64,6 +71,9 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
 
   const handleCloseInfo = () => {
     setIsInfoOpen(false);
+    if (externalOnCloseInfo) {
+      externalOnCloseInfo();
+    }
   };
 
   const handlePlayInfoClick = () => {
@@ -246,7 +256,7 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
                   )}
                   {posterData && 'episodes' in posterData && (
                       <div className="mt-4">
-                        <h2 className="text-2xl font-bold mb-6">회차</h2> {/* mb-6을 추가하여 "회차" 텍스트와 에피소드 목록 사이의 거리를 늘림 */}
+                        <h2 className="text-2xl font-bold mb-6">회차</h2>
                         <ul className="space-y-4">
                           {(posterData as Series).episodes.map((episode) => (
                               <li key={episode.id}
@@ -260,9 +270,9 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
                                     <PlayArrowIcon style={{fontSize: 40}}/>
                                   </div>
                                 </div>
-                                <div className="flex-1 space-y-2"> {/* 추가된 부분: space-y-2 클래스로 설명과 텍스트 사이의 거리를 늘림 */}
+                                <div className="flex-1 space-y-2">
                                   <div className="flex justify-between">
-                                    <h3 className="text-xl font-semibold">{episode.title}</h3> {/* 텍스트 크기를 text-lg에서 text-xl로 변경 */}
+                                    <h3 className="text-xl font-semibold">{episode.title}</h3>
                                     <p className="text-sm text-gray-400">{episode.duration} 분</p>
                                   </div>
                                   <p className="text-sm">{episode.description}</p>
@@ -271,8 +281,6 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
                           ))}
                         </ul>
                       </div>
-
-
                   )}
                 </div>
               </div>
@@ -288,8 +296,8 @@ const Poster = ({ posterData, genreList = [] }: IProps) => {
                     setWasInfoOpen(false);
                   }
                 }}
-                width="63%"  // 원하는 width 값
-                height="70%" // 원하는 height 값
+                width="63%"
+                height="70%"
             />
         )}
       </div>
